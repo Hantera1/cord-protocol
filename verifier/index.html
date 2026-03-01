@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cord Verify (Draft)</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; padding: 16px; line-height: 1.4; }
+    .box { border: 1px solid #ddd; border-radius: 10px; padding: 12px; margin: 12px 0; }
+    input { width: 100%; padding: 10px; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+    .ok { font-weight: 700; }
+  </style>
+</head>
+<body>
+  <h1>Cord Verify (Draft)</h1>
+  <p>This page verifies <code>bundle.json</code> + <code>receipt.json</code> offline (PASS/FAIL).</p>
+
+  <div class="box">
+    <label>Bundle file (bundle_valid.json)</label><br/>
+    <input id="bundleFile" type="file" accept=".json" />
+  </div>
+
+  <div class="box">
+    <label>Receipt file (receipt_valid.json)</label><br/>
+    <input id="receiptFile" type="file" accept=".json" />
+  </div>
+
+  <button id="runBtn">Verify</button>
+
+  <div class="box">
+    <div id="result" class="ok"></div>
+    <pre id="out"></pre>
+  </div>
+
+<script>
+  // ---- Canonical JSON (simple deterministic stringify with sorted keys) ----
+  function canonicalize(value) {
+    if (value === null || typeof value !== "object") return value;
+    if (Array.isArray(value)) return value.map(canonicalize);
+    const keys = Object.keys(value).sort();
+    const out = {};
+    for (const k of keys) out[k] = canonicalize(value[k]);
+    return out;
+  }
+  function cjson(obj) {
+    return JSON.stringify(canonicalize(obj));
+  }
+
+  // ---- SHA-256 helpers (WebCrypto) ----
+  async function sha256HexBytes(bytes) {
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    const arr = Array.from(new Uint8Array(digest));
+    return arr.map(b => b.toString(16).padStart(2, "0")).join("");
+  }
+  async function sha256HexString(str) {
+    const bytes = new TextEncoder().encode(str);
+    return sha256HexBytes(bytes);
+  }
+
+  async function readFileBytes(file) {
+    const buf = await file.arrayBuffer();
+    return new Uint8Array(buf);
+  }
+  async function readFileText(file) {
+    return await file.text();
+  }
+
+  document.getElementById("runBtn").addEventListener("click", async () => {
+    const bundleFile = document.getElementById("bundleFile").files[0];
+    const receiptFile = document.getElementById("receiptFile").files[0];
+
+    const resultEl = document.getElementById("result");
+    const outEl = document.getElementById("out");
+    resultEl.textContent = "";
+    outEl.textContent = "";
+
+    if (!bundleFile || !receiptFile) {
+      resultEl.textContent = "FAIL: choose both bundle and receipt files";
+      return;
+    }
+
+    try {
+      // Load raw bytes for bundleFileHash
+      const bundleBytes = await readFileBytes(bundleFile);
+      const bundleFileHash = await sha256HexBytes(bundleBytes);
+
+      // Parse JSON
+      const bundleText = await readFileText(bundleFile);
+      const receiptText = await readFileText(receiptFile);
+      const bundleObj = JSON.parse(bundleText);
+      const receiptObj = JSON.parse(receiptText);
+
+      // Compute bundleHash from canonical JSON
+      const bundleHash = await sha256HexString(cjson(bundleObj));
+
+      // Compare
+      const expectedBundleHash = (receiptObj.bundleHash || "").toLowerCase();
+      const expectedBundleFileHash = (receiptObj.bundleFileHash || "").toLowerCase();
+
+      const ok1 = expectedBundleHash && (bundleHash === expectedBundleHash);
+      const ok2 = expectedBundleFileHash && (bundleFileHash === expectedBundleFileHash);
+
+      // If placeholders are present, we still print computed values.
+      const placeholders =
+        expectedBundleHash === "to_be_computed" || expectedBundleFileHash === "to_be_computed";
+
+      const pass = placeholders ? false : (ok1 && ok2);
+
+      resultEl.textContent = placeholders
+        ? "NEEDS HASHES: compute values below and paste into receipt.json"
+        : (pass ? "PASS (MATCH YES)" : "FAIL (MATCH NO)");
+
+      outEl.textContent =
+        "Computed:\n" +
+        "bundleHash      = " + bundleHash + "\n" +
+        "bundleFileHash  = " + bundleFileHash + "\n\n" +
+        "Receipt expects:\n" +
+        "bundleHash      = " + expectedBundleHash + "\n" +
+        "bundleFileHash  = " + expectedBundleFileHash + "\n";
+
+    } catch (e) {
+      resultEl.textContent = "FAIL: " + (e?.message || String(e));
+    }
+  });
+</script>
+</body>
+</html>
