@@ -1,0 +1,14 @@
+# Cord Core Test Vector Draft 0.1
+
+Bundle file: bundle_valid.json
+Receipt file: receipt_valid.json
+
+Expected verification result: PASS (after hashes are computed)
+
+bundleHash = SHA256(CJSON(bundle_valid))
+bundleFileHash = SHA256(bundle_valid file bytes)
+
+Note:
+- Replace TO_BE_COMPUTED values in receipt_valid.json
+- After replacement, verification MUST return PASS
+- Any byte modification MUST result in FAIL
