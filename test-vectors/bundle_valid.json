@@ -1,8 +1,8 @@
 {
-  "specVersion": "0.1",
-  "cp_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-  "cid": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
-  "height": 1,
-  "tip_commit": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
-  "createdAt": "2026-03-01T12:00:00Z"
+  "spec_version": "0.1",
+  "model_id": "demo-model",
+  "timestamp": "2026-03-06T12:00:00Z",
+  "policy_id": "cord-output-v0.1",
+  "input_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+  "output_hash": "2222222222222222222222222222222222222222222222222222222222222222"
 }
