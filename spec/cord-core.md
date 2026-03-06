@@ -1,4 +1,4 @@
-# Cord Core Specification v0.1
+# # Cord Core Specification v0.1
 
 ## Overview
 
