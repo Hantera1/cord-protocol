@@ -1,0 +1,14 @@
+# Cord Core Test Vector v0.1 (AI Event)
+
+Bundle file: bundle_valid_v01.json
+Receipt file: receipt_valid_v01.json
+
+Expected verification result: PASS (after hashes computed)
+
+bundle_hash = SHA256(CJSON(bundle_valid_v01))
+bundle_file_hash = SHA256(bundle_valid_v01 file bytes)
+
+Note:
+- Replace TO_BE_COMPUTED values in receipt_valid_v01.json
+- After replacement, verification MUST return PASS
+- Any byte modification MUST result in FAIL
