@@ -1,35 +1,42 @@
 # Cord Core Specification v0.1
 
-## Deterministic Verification
+## Overview
 
-Given:
-- input
-- policy
-- previous state hash
+Cord is a minimal verification layer for AI events.
 
-The system MUST deterministically output:
+Cord proves that a specific AI event has not been altered after creation.
 
-PASS | FAIL
+A Cord event is defined by:
 
-No probabilistic acceptance is allowed.
+- model_id
+- timestamp
+- policy_id
+- input_hash
+- output_hash
 
-## Policy Identity
+The Cord bundle is hashed deterministically and bound to a receipt.
 
-Each policy MUST be bound to:
+---
 
-policy_hash = SHA256(policy_definition)
+## Cord Event Model
 
-The policy hash is immutable.
+A valid Cord event MUST include:
 
-## State Transition Rule
+- `spec_version`
+- `model_id`
+- `timestamp`
+- `policy_id`
+- `input_hash`
+- `output_hash`
 
-new_state_hash = SHA256(
-    previous_state_hash +
-    input_hash +
-    policy_hash +
-    result
-)
+Example:
 
-If verification fails:
-- state transition is rejected
-- system remains unchanged
+```json
+{
+  "spec_version": "0.1",
+  "model_id": "demo-model",
+  "timestamp": "2026-03-06T12:00:00Z",
+  "policy_id": "cord-output-v0.1",
+  "input_hash": "1111111111111111111111111111111111111111111111111111111111111111",
+  "output_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+}
