@@ -128,3 +128,12 @@ The specification may evolve as implementations and verification tools mature.
 ## License
 
 See the `LICENSE` file for details.
+---
+
+## Creator
+
+Cord was originally created by:
+
+GitHub: https://github.com/Hantera1
+
+This repository serves as the original reference implementation and specification of the Cord protocol.
