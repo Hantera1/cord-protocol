@@ -94,4 +94,100 @@ Verifiers MUST ignore unknown fields.
   "policy_id": "cord-output-v0.1",
   "input_hash": "1111111111111111111111111111111111111111111111111111111111111111",
   "output_hash": "2222222222222222222222222222222222222222222222222222222222222222"
+}## Cord Core Bundle
+
+The Cord Core Bundle is the canonical representation of an AI event within the Cord protocol.
+
+Implementations MUST produce a bundle object containing exactly the following fields:
+
+- spec_version
+- model_id
+- timestamp
+- policy_id
+- input_hash
+- output_hash
+
+No additional fields are permitted in the core bundle.
+
+---
+
+## Canonical Structure
+
+A valid Cord Core Bundle MUST follow this structure:
+
+{
+  "spec_version": "0.1",
+  "model_id": "...",
+  "timestamp": "...",
+  "policy_id": "...",
+  "input_hash": "...",
+  "output_hash": "..."
 }
+
+Field names are case-sensitive and MUST appear exactly as defined above.
+
+---
+
+## Field Definitions
+
+spec_version  
+Version of the Cord Core specification used to generate the bundle.
+
+model_id  
+Identifier of the AI model that produced the output.
+
+timestamp  
+Timestamp representing when the AI event occurred.  
+This value SHOULD be encoded using ISO-8601 in UTC.
+
+policy_id  
+Identifier of the policy, configuration, or execution context under which the model operated.
+
+input_hash  
+SHA-256 hash of the canonicalized model input.
+
+output_hash  
+SHA-256 hash of the generated model output.
+
+---
+
+## Determinism Requirements
+
+The Cord Core Bundle MUST be treated as a canonical object.
+
+Implementations:
+
+- MUST include exactly the defined fields
+- MUST NOT include additional fields in the core bundle
+- MUST ensure deterministic serialization before hashing
+
+Any additional metadata MUST be stored outside the Cord Core Bundle and MUST NOT influence bundle hashing.
+
+---
+
+## Bundle Hash Definition
+
+The bundle hash is defined as:
+
+SHA256(CanonicalJSON(bundle))
+
+Where CanonicalJSON(bundle) represents a deterministic JSON encoding with the following requirements:
+
+- UTF-8 encoding
+- lexicographically sorted object keys
+- no insignificant whitespace
+- deterministic numeric encoding
+
+These requirements ensure identical hashes across independent implementations.
+
+---
+
+## Design Rationale
+
+The Cord Core Bundle is intentionally minimal in order to ensure:
+
+- deterministic verification
+- cross-implementation compatibility
+- long-term auditability of AI events
+
+The minimal structure reduces ambiguity and enables simple offline verification of AI event integrity.
