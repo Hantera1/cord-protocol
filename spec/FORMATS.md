@@ -191,3 +191,19 @@ The Cord Core Bundle is intentionally minimal in order to ensure:
 - long-term auditability of AI events
 
 The minimal structure reduces ambiguity and enables simple offline verification of AI event integrity.
+
+---
+
+## Signatures (Optional Future Extension)
+
+Future versions of Cord may support cryptographic signatures over the bundle hash.
+
+This would allow verifiers to confirm not only integrity, but also the identity of the signer that produced or attested the AI event.
+
+In such a model, a signature layer may include:
+
+- signer_id
+- signature
+- signature_algorithm
+
+Signature support is not required in Cord Core v0.1.
