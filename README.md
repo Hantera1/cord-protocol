@@ -143,8 +143,14 @@ This repository serves as the original reference implementation and specificatio
 
 If you find Cord useful and want to support its development, you may send a voluntary contribution.
 
-ETH: 0x3d6344fc57ba0039429bdf78dd7ca734c42195b9
+### Ethereum (ETH — Ethereum network)
+`0x3d6344fc57ba0039429bdf78dd7ca734c42195b9`
 
-BTC: bc1q8qtrmfmq53smfhzp8s6p9er080z66zvzae9f38
+![ETH QR](eth-qr.png)
 
-Contributions are optional and help support continued research and development of the Cord protocol.
+### Bitcoin (BTC — Bitcoin network)
+`bc1q8qtrmfmq53smfhzp8s6p9er080z66zvzae9f38`
+
+![BTC QR](btc-qr.png)
+
+⚠️ Only send ETH to the Ethereum address and BTC to the Bitcoin address.
