@@ -141,16 +141,28 @@ This repository serves as the original reference implementation and specificatio
 
 ## Support
 
-If you find Cord useful and want to support its development, you may send a voluntary contribution.
+If you find Cord useful and want to support development, you may send a voluntary contribution.
+
+---
 
 ### Ethereum (ETH — Ethereum network)
-`0x3d6344fc57ba0039429bdf78dd7ca734c42195b9`
 
-![ETH QR](eth-qr.png)
+<p align="center">
+  <code>0x3d6344fc57ba0039429bdf78dd7ca734c42195b9</code>
+  <br><br>
+  <img src="eth-qr.png" width="220" alt="Ethereum QR code"/>
+</p>
+
+---
 
 ### Bitcoin (BTC — Bitcoin network)
-`bc1q8qtrmfmq53smfhzp8s6p9er080z66zvzae9f38`
 
-![BTC QR](btc-qr.png)
+<p align="center">
+  <code>bc1q8qtrmfmq53smfhzp8s6p9er080z66zvzae9f38</code>
+  <br><br>
+  <img src="btc-qr.png" width="220" alt="Bitcoin QR code"/>
+</p>
+
+---
 
 ⚠️ Only send ETH to the Ethereum address and BTC to the Bitcoin address.
