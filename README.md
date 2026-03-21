@@ -116,6 +116,22 @@ Cord is designed to be:
 The protocol intentionally keeps the core format small to reduce ambiguity and improve cross-implementation compatibility.
 
 ---
+## Quick Start
+
+Example flow:
+
+1. Generate hashes of input and output  
+2. Create `bundle.json`  
+3. Generate `receipt.json`  
+4. Run verification  
+
+Example:
+
+```bash
+python verifier/verify.py bundle.json receipt.json
+```
+
+---
 
 ## Status
 
