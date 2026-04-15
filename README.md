@@ -8,6 +8,7 @@
 ---
 
 
+
 **Cord** is a minimal protocol for cryptographically verifiable AI events.
 
 It provides a simple and deterministic way to verify that an AI-generated output has not been modified after generation.
