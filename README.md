@@ -1,8 +1,12 @@
 <p align="center">
-  <img src="logo.png.PNG" alt="Cord Logo" width="400">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="logo_dark.png.PNG">
+    <img alt="Cord Logo" src="logo.png.PNG" width="400">
+  </picture>
 </p>
 
 ---
+
 
 
 
