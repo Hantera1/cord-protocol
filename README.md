@@ -1,4 +1,12 @@
-# Cord
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="logo_dark.png.PNG">
+    <img alt="Cord Logo" src="logo.png.PNG" width="400">
+  </picture>
+</p>
+
+---
+
 
 **Cord** is a minimal protocol for cryptographically verifiable AI events.
 
