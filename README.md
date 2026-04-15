@@ -1,7 +1,9 @@
-![Logo](logo.png.PNG#gh-light-mode-only)
-![Logo](logo_dark.png.PNG#gh-dark-mode-only)
+<p align="center">
+  <img src="logo.png.PNG" alt="Cord Logo" width="400">
+</p>
 
 ---
+
 
 
 **Cord** is a minimal protocol for cryptographically verifiable AI events.
