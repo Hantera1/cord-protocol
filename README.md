@@ -140,6 +140,18 @@ python verifier/verify.py bundle.json receipt.json
 ---
 
 ## Status
+---
+
+## Contributing 🤝
+
+We welcome developers and researchers to help improve the Cord protocol. Whether it's fixing bugs, suggesting new features, or writing documentation, your help is appreciated!
+
+**How you can help:**
+* **SDKs:** Help us build client libraries for **JavaScript/TypeScript**, **Go**, and **Rust**.
+* **Protocol Review:** Audit our hashing logic and signature standards.
+* **Integrations:** Help us create plugins for frameworks like **LangChain** or **AutoGPT**.
+
+To get started, simply **fork** the repo, create a feature branch, and submit a **Pull Request**.
 
 Cord is currently an **experimental protocol draft (v0.1)**.
 
