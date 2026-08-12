@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cord Protocol</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+    .card { background: #1e293b; border-radius: 12px; padding: 32px; max-width: 500px; width: 100%; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.5); text-align: center; }
+    h1 { margin-top: 0; color: #38bdf8; }
+    p { color: #94a3b8; line-height: 1.6; }
+    .badge { display: inline-block; background: #0369a1; color: #e0f2fe; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-bottom: 16px; }
+    .btn { display: inline-block; background: #38bdf8; color: #0f172a; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="badge">v0.1 Experimental</span>
+    <h1>Cord Protocol</h1>
+    <p>A minimal deterministic governance protocol for verifying and controlling AI-driven state transitions.</p>
+    <a href="https://github.com/Hantera1/cord-protocol" class="btn">Visa på GitHub</a>
+  </div>
+</body>
+</html>
