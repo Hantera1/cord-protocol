@@ -90,3 +90,19 @@ Cord is published under the [Apache License 2.0](LICENSE).
 Cord was initiated by Hantera and KentPH. The protocol is open for everyone to inspect, implement, use, and extend under the project license. Independent implementations and community contributions are welcome.
 
 Project creator: [KentPH / Hantera](https://github.com/Hantera1).
+
+
+## Python integration
+
+A minimal helper is available at `sdk/python/cord_sdk.py`; see
+`examples/python_quickstart.py`. Install the signing dependency with
+`python -m pip install -r requirements.txt`. The signed-receipt and
+event-chain extensions are experimental. A chain requires an externally
+retained checkpoint to detect full-chain replacement.
+
+## Experimental extensions
+
+- [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
+- [Receipt event chain](spec/EVENT-CHAIN.md)
+
+These extensions do not make Cord a production security certification.
