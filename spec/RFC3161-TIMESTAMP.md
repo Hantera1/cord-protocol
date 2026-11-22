@@ -21,7 +21,7 @@ The verifier MUST validate the CMS SignedData signature, message imprint, TSTInf
 
 ## 3. Result and policy
 
-A verifier MUST report message-imprint validation and digest algorithm, CMS signature validation, TSA certificate-path validation, timestamping-EKU validation, certificate validity at `genTime`, generation time, the SHA-256 digest of the configured trust-anchor file, and revocation-check status separately.
+A verifier MUST report message-imprint validation and digest algorithm, CMS signature validation, TSA certificate-path validation, timestamping-EKU validation, certificate validity at `genTime`, generation time, the SHA-256 digest of the configured trust-anchor file, and revocation-check status separately. A composite verification result MUST be `INDETERMINATE`, not `PASS`, when cryptographic checks pass but TSA revocation status has not been established under the deployment's required policy.
 
 The timestamp result MUST be combined with, not substituted for:
 1. Core bundle/receipt integrity verification;
@@ -32,7 +32,7 @@ Only after timestamp validation returns PASS may its generation time be passed t
 
 ## 4. Revocation and historical validation
 
-The reference verifier can load a PEM CRL file alongside the configured CA certificates and enable full-chain CRL checking. A deployment requiring revocation checking MUST supply a current and appropriate CRL and set `require_crl=True`; absence of a CRL MUST NOT be reported as a revocation PASS. OCSP is not implemented. CRLs are only as trustworthy and current as the operator's distribution and refresh process. Historical validation requires revocation evidence appropriate to the timestamp generation time; a current CRL alone does not prove historical status. Deployments MUST document their TSA certificate revocation policy.
+The reference verifier can load a PEM CRL file alongside the configured CA certificates and enable full-chain CRL checking. The composite helper returns `INDETERMINATE` if cryptographic and signing-key checks pass but TSA revocation is not checked. A deployment requiring revocation checking MUST supply an appropriate CRL and set `require_crl=True`; absence of a CRL MUST NOT be reported as a revocation PASS. OCSP is not implemented. CRLs are only as trustworthy and current as the operator's distribution and refresh process. Historical validation requires revocation evidence appropriate to the timestamp generation time; a current CRL alone does not prove historical status. Deployments MUST document their TSA certificate revocation policy.
 
 ## 5. Reference implementation
 
