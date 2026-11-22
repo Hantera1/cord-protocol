@@ -126,3 +126,15 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 - [ ] Apply the charter's versioning, security, privacy, and release requirements to each normative profile and extension.
 
 **Status:** Architecture Charter v1.0 draft committed. The charter governs project direction; individual technical specifications and implementation evidence govern conformance and maturity.
+
+
+## Profile manifest and common verifier foundation
+
+- [x] Define the proposed CORD application profile manifest and staged verification model in `spec/PROFILE-MANIFEST.md`.
+- [x] Publish the draft JSON Schema at `schemas/profile-manifest-0.1.schema.json`.
+- [ ] Publish immutable manifest/evidence fixtures for Clock Verification and Luxury Asset Verification.
+- [ ] Implement strict manifest parsing, local pinned profile registry, profile receipt validation, and structured result reporting.
+- [ ] Add profile-aware verification without changing Core v0.1 behavior.
+- [ ] Publish conformance vectors and complete independent interoperability and security review.
+
+**Status:** manifest specification and JSON Schema are draft artifacts. The current Python verifier remains Core-only; profile-aware verification is not implemented.
