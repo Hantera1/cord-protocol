@@ -88,6 +88,12 @@ SDKs and adapters may support programming languages, AI frameworks, enterprise s
 
 An SDK is an implementation convenience, not a separate source of protocol truth. Conformance is determined by normative specifications and test vectors.
 
+
+
+### 4.6 Profile manifest and common verification model
+
+Every application profile MUST be identified by an immutable profile identifier and an exact version. A machine-readable manifest declares profile identity, version, Core compatibility, normative specification, evidence schema, and verification requirements. Profile-aware verification MUST be layered on top of Core verification and MUST NOT alter Core v0.1 semantics. The proposed manifest and staged verifier model are defined in [CORD Application Profile Manifest and Verification Model](../spec/PROFILE-MANIFEST.md).
+
 ### 4.5 Optional services
 
 Optional services may include hosted verification, managed evidence storage, organization administration, dashboards, key-management integrations, audit exports, support, and service-level agreements.
