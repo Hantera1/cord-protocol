@@ -176,6 +176,20 @@ export function canonicalBundleBytes(bundle) {
   return Buffer.from(`{${members.join(",")}}`, "utf8");
 }
 
+export function createReceiptBytes(bundleBytes, createdAt) {
+  const raw = Buffer.isBuffer(bundleBytes) ? bundleBytes : Buffer.from(bundleBytes);
+  const bundle = decodeFile(raw, "bundle");
+  validateBundle(bundle);
+  validateTimestamp(createdAt, "created_at");
+  const receipt = {
+    spec_version: SPEC_VERSION,
+    bundle_hash: sha256(canonicalBundleBytes(bundle)),
+    bundle_file_hash: sha256(raw),
+    created_at: createdAt,
+  };
+  return Buffer.from(JSON.stringify(receipt, null, 2) + "\\n", "utf8");
+}
+
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
 }
