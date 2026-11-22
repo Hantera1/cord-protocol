@@ -58,7 +58,7 @@ def _read_trust_store(path: str | Path) -> bytes:
         raise CordValidationError(
             f"trust store exceeds {MAX_TRUST_STORE_BYTES} bytes"
         )
-    if raw.startswith(b"\\xef\\xbb\\xbf"):
+    if raw.startswith(b"\xef\xbb\xbf"):
         raise CordValidationError("trust store must not contain a UTF-8 BOM")
     return raw
 
