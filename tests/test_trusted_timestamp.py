@@ -206,11 +206,25 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
             self.token.read_bytes(),
             self.ca,
             required_role="manufacturer",
+            crl_file=self.crl,
+            require_crl=True,
         )
         self.assertEqual(result["status"], "PASS")
         self.assertEqual(result["timestamp"]["status"], "PASS")
         self.assertEqual(result["trust"]["historical_key_validity"], "PASS")
         self.assertEqual(result["trust"]["role_authorization"], "PASS")
+
+    def test_unchecked_tsa_revocation_is_indeterminate(self):
+        result = verify_signed_receipt_with_timestamp(
+            self.receipt,
+            self.envelope,
+            self.trust_store,
+            self.token.read_bytes(),
+            self.ca,
+            required_role="manufacturer",
+        )
+        self.assertEqual(result["status"], "INDETERMINATE")
+        self.assertEqual(result["timestamp"]["tsa_revocation"], "NOT_CHECKED")
 
 
 if __name__ == "__main__":
