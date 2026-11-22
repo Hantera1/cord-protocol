@@ -16,17 +16,17 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 
 ## Stage 1 — Reliable Core implementation
 
-- [ ] Harden the Python reference verifier.
-- [ ] Provide a command-line interface with machine-readable output and clear exit codes.
+- [x] Harden the Python reference verifier.
+- [x] Provide a command-line interface with machine-readable output and clear exit codes.
 - [ ] Add a bundle/receipt creation example.
-- [ ] Add continuous integration for tests and formatting.
+- [x] Add continuous integration for tests (format/lint gate remains pending).
 - [ ] Document reproducible local verification with no network access.
 
 **Exit criteria:** a new developer can create, verify, tamper with, and reject a sample package using the documented commands.
 
 ## Stage 2 — Developer adoption
 
-- [ ] Publish a Python SDK.
+- [x] Add a minimal Python SDK helper (initial reference; packaging/release still pending).
 - [ ] Publish a JavaScript/TypeScript SDK.
 - [ ] Provide integration examples for common AI application patterns.
 - [ ] Add a public verifier demo that runs locally in the browser where practical.
@@ -36,8 +36,8 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 
 ## Stage 3 — Trust extensions
 
-- [ ] Specify signature profiles and key identification.
-- [ ] Specify trusted timestamp evidence and its trust assumptions.
+- [x] Specify an experimental Ed25519 signed-receipt profile and key identifier.
+- [ ] Specify and implement trusted timestamp evidence (RFC 3161 token validation and trust anchors remain pending).
 - [ ] Specify key rotation, revocation, and algorithm agility.
 - [ ] Define provenance and policy metadata extensions.
 - [ ] Add test vectors and threat analysis for every extension.
@@ -70,3 +70,23 @@ A release should identify:
 - test-vector version;
 - known limitations and security considerations;
 - backward-compatibility expectations.
+
+
+## Current implementation status (2026-11-22)
+
+Implemented on the work branch:
+- Strict Python Core verifier and receipt creation CLI.
+- Deterministic Core v0.1 specification and fixed test vector.
+- GitHub Actions test workflow.
+- Experimental Ed25519 detached receipt signatures verified against an externally trusted/pinned public key.
+- Experimental receipt hash-chain helper with optional externally trusted head checkpoint.
+- Minimal Python SDK helper and end-to-end example.
+
+Not yet production-ready:
+- No independent second-language implementation or interoperability vectors.
+- No RFC 3161 timestamp-token verification or configured trust anchors.
+- No key registry, rotation, revocation, or hardware-backed key custody.
+- No hosted API, authentication, managed storage, or operational deployment.
+- No independent security audit or formal protocol review.
+
+Do not mark Cord stable or claim regulatory compliance until these release gates are met.
