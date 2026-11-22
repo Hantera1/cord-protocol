@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cord-protocol.org/spec/trade-evidence-0.1.schema.json",
+  "title": "Cord Trade Evidence 0.1",
+  "description": "Detached business-event evidence manifest. Does not alter Cord Core v0.1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "extension",
+    "event_id",
+    "event_type",
+    "created_at",
+    "core_receipt_hash",
+    "trust_class",
+    "claims"
+  ],
+  "properties": {
+    "extension": {
+      "const": "cord.trade.evidence"
+    },
+    "extension_version": {
+      "const": "0.1"
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "event_type": {
+      "enum": [
+        "asset.registered",
+        "trade.offered",
+        "trade.accepted",
+        "payment.initiated",
+        "payment.confirmed",
+        "payment.reversed",
+        "delivery.dispatched",
+        "delivery.received",
+        "trade.completed",
+        "trade.disputed",
+        "trade.cancelled",
+        "document.signed",
+        "assay.issued",
+        "custody.transferred"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "core_receipt_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "previous_event_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "transaction_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 128
+    },
+    "trust_class": {
+      "enum": [
+        "DECLARED",
+        "ACKNOWLEDGED",
+        "PROVIDER_ATTESTED",
+        "INDEPENDENTLY_AUDITED"
+      ]
+    },
+    "actors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "actor_ref",
+          "role"
+        ],
+        "properties": {
+          "actor_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "role": {
+            "enum": [
+              "buyer",
+              "seller",
+              "broker",
+              "carrier",
+              "assayer",
+              "payment_provider",
+              "auditor",
+              "witness"
+            ]
+          }
+        }
+      }
+    },
+    "asset": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "category": {
+          "enum": [
+            "watch",
+            "jewellery",
+            "art",
+            "collectible",
+            "metal",
+            "commodity",
+            "equipment",
+            "other"
+          ]
+        },
+        "brand": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "serial_number": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "lot_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "material": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "weight": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "value",
+            "unit"
+          ],
+          "properties": {
+            "value": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "unit": {
+              "enum": [
+                "g",
+                "kg",
+                "oz",
+                "troy_oz"
+              ]
+            }
+          }
+        },
+        "purity": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "condition": {
+          "type": "string",
+          "maxLength": 256
+        }
+      }
+    },
+    "commercial_terms": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "type": "string",
+          "pattern": "^[0-9]+(\\\\.[0-9]+)?$"
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$"
+        },
+        "payment_method": {
+          "enum": [
+            "bank_transfer",
+            "card",
+            "cash",
+            "crypto",
+            "escrow",
+            "other"
+          ]
+        },
+        "contract_document_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "payment_reference": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "network": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "asset_code": {
+          "type": "string",
+          "maxLength": 32
+        },
+        "transaction_ref": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "status": {
+          "enum": [
+            "initiated",
+            "pending",
+            "confirmed",
+            "final",
+            "failed",
+            "reversed",
+            "refunded"
+          ]
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confirmation_policy": {
+          "type": "string",
+          "maxLength": 256
+        }
+      }
+    },
+    "delivery_reference": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "provider": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "tracking_ref": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "status": {
+          "enum": [
+            "prepared",
+            "dispatched",
+            "in_transit",
+            "delivered",
+            "exception",
+            "returned"
+          ]
+        },
+        "proof_document_hash": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "document_hash",
+          "media_type",
+          "document_role"
+        ],
+        "properties": {
+          "document_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "media_type": {
+            "type": "string",
+            "maxLength": 128
+          },
+          "document_role": {
+            "enum": [
+              "contract",
+              "invoice",
+              "receipt",
+              "certificate",
+              "assay_report",
+              "authentication_report",
+              "delivery_proof",
+              "photo",
+              "other"
+            ]
+          },
+          "encrypted_storage_ref": {
+            "type": "string",
+            "maxLength": 512
+          }
+        }
+      }
+    },
+    "disclosure": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contains_personal_data": {
+          "type": "boolean"
+        },
+        "retention_policy_id": {
+          "type": "string",
+          "maxLength": 128
+        },
+        "visibility": {
+          "enum": [
+            "private",
+            "counterparties",
+            "auditor",
+            "public_commitment_only"
+          ]
+        }
+      }
+    }
+  }
+}
