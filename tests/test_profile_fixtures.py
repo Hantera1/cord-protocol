@@ -38,7 +38,7 @@ class InitialProfileFixtureTests(unittest.TestCase):
             "output_hash": "2" * 64,
         }
         (package / "bundle.json").write_text(
-            json.dumps(bundle, ensure_ascii=False, indent=2) + "\\n",
+            json.dumps(bundle, ensure_ascii=False, indent=2) + "\n",
             encoding="utf-8",
         )
         create_receipt(package / "bundle.json", package / "receipt.json", NOW)
@@ -75,7 +75,7 @@ class InitialProfileFixtureTests(unittest.TestCase):
         path = package / "profile-evidence.json"
         evidence = json.loads(path.read_text(encoding="utf-8"))
         evidence["evidence"][1]["evidence_id"] = evidence["evidence"][0]["evidence_id"]
-        path.write_text(json.dumps(evidence, indent=2) + "\\n", encoding="utf-8")
+        path.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
         self.reseal(package)
         result = verify_profile_package(package, PROFILE_ROOT)
         self.assertEqual(result["status"], "FAIL", result)
@@ -87,7 +87,7 @@ class InitialProfileFixtureTests(unittest.TestCase):
         evidence = json.loads(path.read_text(encoding="utf-8"))
         evidence["evidence"][1]["assessment"] = "authentic"
         evidence["evidence"][1]["issuer"]["issuer_role"] = "seller"
-        path.write_text(json.dumps(evidence, indent=2) + "\\n", encoding="utf-8")
+        path.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
         self.reseal(package)
         result = verify_profile_package(package, PROFILE_ROOT)
         self.assertEqual(result["status"], "FAIL", result)
@@ -99,7 +99,7 @@ class InitialProfileFixtureTests(unittest.TestCase):
         evidence = json.loads(path.read_text(encoding="utf-8"))
         evidence["time_claims"][0]["assurance"] = "external_timestamp_reference"
         evidence["time_claims"][0]["timestamp_token_ref"] = "missing-token"
-        path.write_text(json.dumps(evidence, indent=2) + "\\n", encoding="utf-8")
+        path.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
         self.reseal(package)
         result = verify_profile_package(package, PROFILE_ROOT)
         self.assertEqual(result["status"], "FAIL", result)
@@ -116,7 +116,7 @@ class InitialProfileFixtureTests(unittest.TestCase):
             "message_imprint_digest": "b" * 32,
             "validation_status": "not_validated",
         }]
-        path.write_text(json.dumps(evidence, indent=2) + "\\n", encoding="utf-8")
+        path.write_text(json.dumps(evidence, indent=2) + "\n", encoding="utf-8")
         self.reseal(package)
         result = verify_profile_package(package, PROFILE_ROOT)
         self.assertEqual(result["status"], "FAIL", result)
