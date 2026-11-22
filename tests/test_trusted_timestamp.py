@@ -108,15 +108,6 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
             encoding="ascii",
         )
         (cls.root / "tsa.serial").write_text("01\n", encoding="ascii")
-        cls.openssl([
-            "ts", "-query", "-data", str(cls.data), "-sha256",
-            "-cert", "-out", str(cls.root / "request.tsq"),
-        ])
-        cls.openssl([
-            "ts", "-reply", "-queryfile", str(cls.root / "request.tsq"),
-            "-config", str(cls.root / "tsa.cnf"),
-            "-token_out", "-out", str(cls.token),
-        ])
         # Generate a real issuer CRL so the full-chain CRL path is exercised.
         (cls.root / "newcerts").mkdir()
         (cls.root / "index.txt").write_text("", encoding="ascii")
@@ -141,6 +132,15 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
         )
         cls.crl = cls.root / "ca.crl"
         cls.openssl(["ca", "-gencrl", "-config", str(cls.root / "ca.cnf"), "-out", str(cls.crl), "-batch"])
+        cls.openssl([
+            "ts", "-query", "-data", str(cls.data), "-sha256",
+            "-cert", "-out", str(cls.root / "request.tsq"),
+        ])
+        cls.openssl([
+            "ts", "-reply", "-queryfile", str(cls.root / "request.tsq"),
+            "-config", str(cls.root / "tsa.cnf"),
+            "-token_out", "-out", str(cls.token),
+        ])
         # Independent trust anchor used to prove the verifier rejects an
         # otherwise well-formed token from an untrusted TSA hierarchy.
         cls.other_ca = cls.root / "other-ca.pem"
