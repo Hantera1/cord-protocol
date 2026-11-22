@@ -83,6 +83,17 @@ Cord Trade adds detached evidence manifests for physical goods, metals, contract
 
 Cord Trade is an experimental extension. Its declarations do not prove authenticity, ownership, payment finality, delivery or legal validity without suitable external evidence and trust anchors.
 
+## Cord Trade Commercial Licensing (working draft)
+
+Commercial licensing separates the open Cord Core protocol from proprietary Trade agreement materials, paid services, hosted features, partner rights and support. The licensing framework is a design draft, not a signed legal contract.
+
+- [Commercial licensing framework](docs/COMMERCIAL-LICENSING.md)
+- [License registry operating model](docs/LICENSING-OPERATIONS.md)
+- [License Record 0.1 schema](spec/LICENSE-RECORD-0.1.schema.json)
+- [Arabic market launch brief](docs/ARABIC-MARKET-LAUNCH.md)
+
+**Ownership gate:** the legal licensor is not confirmed until the IP chain of title and legal entity are documented. Existing Cord Core code is published under Apache 2.0; commercial licensing must not purport to withdraw those rights.
+
 ## Experimental extensions
 
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
