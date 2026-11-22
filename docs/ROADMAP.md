@@ -42,7 +42,9 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 - [x] Define fail-closed historical key validity and revocation results; without independently validated trusted time, return `INDETERMINATE`.
 - [x] Specify experimental RFC 3161 timestamp profile binding TSA message imprint to exact Ed25519 signature bytes.
 - [x] Add OpenSSL-backed RFC 3161 token, message-imprint, TSA-chain and timestamping-purpose verification (experimental reference; OCSP/CRL checks remain pending).
-- [ ] Add independently generated interoperability fixtures and TSA revocation validation.
+- [x] Add independently generated OpenSSL RFC 3161 integration fixtures and negative tests for imprint mismatch and untrusted TSA roots.
+- [x] Bind validated TSA generation time into Trust Store historical key-validity evaluation.
+- [x] Support optional full-chain CRL checks; OCSP and independently sourced historical revocation evidence remain pending.
 - [ ] Specify key rotation, revocation, and algorithm agility.
 - [ ] Define provenance and policy metadata extensions.
 - [ ] Add test vectors and threat analysis for every extension.
@@ -89,7 +91,7 @@ Implemented on the work branch:
 
 Not yet production-ready:
 - No independent second-language implementation or interoperability vectors.
-- No RFC 3161 timestamp-token verification or configured trust anchors.
+- Experimental RFC 3161 timestamp-token verification with operator-configured TSA trust anchors; independent review and production hardening remain pending.
 - No key registry, rotation, revocation, or hardware-backed key custody.
 - No hosted API, authentication, managed storage, or operational deployment.
 - No independent security audit or formal protocol review.
