@@ -281,7 +281,7 @@ def verify_profile_package(
                 "Profile receipts are unsigned integrity commitments, not signer authentication.",
                 "The local registry is a trust input and must be provisioned securely.",
                 "No trusted timestamp, issuer identity, authorization, or domain truth is inferred.",
-                "Profile-specific semantic rules beyond JSON Schema are not yet implemented.",
+                "Only the documented initial-profile consistency rules are implemented; broader domain and trust semantics are not inferred.",
                 "A PASS does not certify the profile or prove the underlying claims.",
             ],
         }
