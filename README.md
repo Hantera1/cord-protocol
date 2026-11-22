@@ -107,6 +107,18 @@ The selected commercial direction is a new, separate Cord Trade licensing compan
 
 These are planning and implementation specifications, not legal advice or executed contracts. The new legal entity, jurisdiction, IP assignments, trademarks, licensing permissions and customer agreements remain to be completed.
 
+## Swedish Cord Trade Licensing AB — establishment pack
+
+The current planning direction is a lean Swedish private limited company, with the Cord Trade brand and UAE as the first export market. The proposed shareholder is Means Zero Holding AB at 100%, subject to confirmation that the holding company is registered and able to subscribe.
+
+- [Swedish establishment plan](docs/SWEDISH-NEWCO-ESTABLISHMENT-PLAN.md)
+- [Proposed ownership resolution](docs/PROPOSED-OWNERSHIP-RESOLUTION.md)
+- [Formation document data sheet](docs/FORMATION-DOCUMENTS-DRAFT.md)
+- [Lean startup budget](docs/LEAN-STARTUP-BUDGET.md)
+- [IP asset register template](docs/IP-ASSET-REGISTER-TEMPLATE.md)
+
+These are preparation documents, not filed incorporation papers or executed IP assignments. Company name, shareholder authority, registered office, directors and IP chain of title must be verified before filing or sale.
+
 ## Experimental extensions
 
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
