@@ -1,6 +1,6 @@
 # CORD Luxury Asset Verification Profile (v0.1)
 
-**Status: proposed application profile — draft; not an implemented or production-ready feature.**
+**Status: draft application profile; initial reference schema and validator are implemented on PR #13. Not production-ready.**
 
 This profile defines how CORD may be applied to the creation, exchange, and independent verification of evidence about valuable physical assets. It is an application profile above CORD Core. It MUST NOT change Core v0.1 bundle fields, receipt fields, canonicalization, hash semantics, or PASS/FAIL meaning.
 
@@ -180,4 +180,4 @@ Before a profile implementation is declared interoperable, the project MUST:
 7. implement a reference verifier and independent interoperability tests;
 8. complete threat modelling and independent security review.
 
-**Current status:** proposed profile draft only. No production asset registry, authentication network, trusted timestamp service, legal-title service, or interoperable watch-verification implementation is implied by this document.
+**Current status:** draft profile schema and reference consistency validator are implemented on PR #13. No production asset registry, authentication network, trusted timestamp service, legal-title service, or independent interoperable watch-verification implementation is implied.
