@@ -45,6 +45,17 @@ class CordVerifierTests(unittest.TestCase):
         )
         self.assertEqual(result["status"], "PASS")
 
+    def test_python_receipt_creator_reproduces_published_fixture(self):
+        root = Path(__file__).resolve().parents[1]
+        generated = self.root / "generated-receipt.json"
+        create_receipt(
+            root / "test-vectors" / "bundle_valid.json",
+            generated,
+            NOW,
+        )
+        expected = root / "test-vectors" / "receipt_valid.json"
+        self.assertEqual(generated.read_bytes(), expected.read_bytes())
+
     def test_bundle_byte_change_fails(self):
         self.bundle.write_text(self.bundle.read_text() + " ", encoding="utf-8")
         with self.assertRaises(CordValidationError):
