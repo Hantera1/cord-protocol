@@ -55,6 +55,8 @@ python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/rec
 - [Luxury Asset Verification Profile (proposed)](spec/LUXURY-ASSET-VERIFICATION.md)
 - [Application Portfolio and Reserved Use Cases](spec/APPLICATION-PORTFOLIO.md)
 - [Clock Verification Profile (proposed)](spec/CLOCK-VERIFICATION.md)
+- [Application Profile Manifest and Verification Model (proposed)](spec/PROFILE-MANIFEST.md)
+- [Profile Manifest JSON Schema 0.1](schemas/profile-manifest-0.1.schema.json)
 - [Contributing](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
 
