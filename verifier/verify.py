@@ -31,6 +31,15 @@ class CordValidationError(ValueError):
     """Raised when a Cord evidence file is malformed or invalid."""
 
 
+def _read_bounded(path: str | Path, label: str) -> bytes:
+    """Read at most MAX_FILE_BYTES + 1, so oversized files are never fully loaded."""
+    with Path(path).open("rb") as stream:
+        data = stream.read(MAX_FILE_BYTES + 1)
+    if len(data) > MAX_FILE_BYTES:
+        raise CordValidationError(f"{label} exceeds {MAX_FILE_BYTES} bytes")
+    return data
+
+
 def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -40,38 +49,46 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
+def _reject_constant(value: str) -> None:
+    raise CordValidationError(f"invalid JSON constant: {value}")
+
+
 def _load_json(data: bytes, label: str) -> dict[str, Any]:
     if len(data) > MAX_FILE_BYTES:
         raise CordValidationError(f"{label} exceeds {MAX_FILE_BYTES} bytes")
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise CordValidationError(f"{label} MUST NOT contain a UTF-8 BOM")
     try:
         text = data.decode("utf-8", errors="strict")
         value = json.loads(
             text,
             object_pairs_hook=_unique_object,
-            parse_constant=lambda value: (_ for _ in ()).throw(
-                CordValidationError(f"invalid JSON constant: {value}")
-            ),
+            parse_constant=_reject_constant,
         )
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
         raise CordValidationError(f"{label} is not valid UTF-8 JSON: {exc}") from exc
     if not isinstance(value, dict):
         raise CordValidationError(f"{label} must be a JSON object")
     return value
 
 
-def canonical_json(bundle: dict[str, Any]) -> bytes:
-    """CORD-CJSON-1: sorted keys, UTF-8, compact JSON, no ASCII escaping.
+def _reject_surrogates(value: str, field: str) -> None:
+    if any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+        raise CordValidationError(f"{field} must contain only Unicode scalar values")
 
-    Core v0.1 fields are strings only, avoiding cross-language number-format
-    ambiguity. Duplicate keys are rejected during parsing.
-    """
-    return json.dumps(
-        bundle,
-        ensure_ascii=False,
-        separators=(",", ":"),
-        sort_keys=True,
-        allow_nan=False,
-    ).encode("utf-8")
+
+def canonical_json(bundle: dict[str, Any]) -> bytes:
+    """CORD-CJSON-1: code-point key order, compact UTF-8 JSON, no ASCII escaping."""
+    try:
+        return json.dumps(
+            bundle,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (UnicodeEncodeError, ValueError) as exc:
+        raise CordValidationError(f"bundle cannot be canonicalized as CORD-CJSON-1: {exc}") from exc
 
 
 def sha256(data: bytes) -> str:
@@ -92,10 +109,10 @@ def _validate_fields(obj: dict[str, Any], expected: set[str], label: str) -> Non
     for key, value in obj.items():
         if not isinstance(value, str):
             raise CordValidationError(f"{label}.{key} must be a string")
+        _reject_surrogates(value, f"{label}.{key}")
 
 
 def _validate_timestamp(value: str, field: str) -> None:
-    # v0.1 requires UTC RFC 3339 timestamps with a Z suffix and seconds.
     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z", value):
         raise CordValidationError(f"{field} must be an RFC 3339 UTC timestamp ending in Z")
     try:
@@ -128,7 +145,7 @@ def validate_receipt(receipt: dict[str, Any]) -> None:
 
 
 def create_receipt(bundle_path: str | Path, receipt_path: str | Path, created_at: str) -> dict[str, str]:
-    bundle_bytes = Path(bundle_path).read_bytes()
+    bundle_bytes = _read_bounded(bundle_path, "bundle")
     bundle = _load_json(bundle_bytes, "bundle")
     validate_bundle(bundle)
     _validate_timestamp(created_at, "created_at")
@@ -146,8 +163,8 @@ def create_receipt(bundle_path: str | Path, receipt_path: str | Path, created_at
 
 
 def verify_files(bundle_path: str | Path, receipt_path: str | Path) -> dict[str, Any]:
-    bundle_bytes = Path(bundle_path).read_bytes()
-    receipt_bytes = Path(receipt_path).read_bytes()
+    bundle_bytes = _read_bounded(bundle_path, "bundle")
+    receipt_bytes = _read_bounded(receipt_path, "receipt")
     bundle = _load_json(bundle_bytes, "bundle")
     receipt = _load_json(receipt_bytes, "receipt")
     validate_bundle(bundle)

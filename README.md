@@ -97,6 +97,24 @@ Cord was initiated by Hantera and KentPH. The protocol is open for everyone to i
 Project creator: [KentPH / Hantera](https://github.com/Hantera1).
 
 
+## Independent Core implementations
+
+- Python reference verifier: `verifier/verify.py`
+- Dependency-free JavaScript verifier: `sdk/javascript/src/core.mjs`
+
+Run both conformance suites:
+
+```bash
+python -m unittest discover -s tests -v
+node --test sdk/javascript/test/core.test.mjs
+```
+
+Both implementations verify the published Core v0.1 test vector and share
+strict parsing, canonicalization, hash, and malformed-input expectations.
+The JavaScript receipt creator reproduces the published receipt fixture
+byte-for-byte. Passing these tests demonstrates agreement for the published
+vectors and covered cases; it is not a complete independent security audit.
+
 ## Python integration
 
 A minimal helper is available at `sdk/python/cord_sdk.py`; see

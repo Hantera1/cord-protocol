@@ -13,7 +13,9 @@ Core verification is an integrity-consistency check. It does not authenticate th
 
 ### 1.1 Input encoding
 
-Both files MUST be UTF-8 JSON objects. UTF-8 BOMs, invalid UTF-8, duplicate object keys, non-object top-level values, NaN, and Infinity MUST be rejected. Implementations SHOULD impose a file-size limit; the reference verifier limits each file to 1 MiB.
+Both files MUST be UTF-8 JSON objects. UTF-8 BOMs, invalid UTF-8, duplicate object keys, non-object top-level values, NaN, and Infinity MUST be rejected. The reference verifier MUST read no more than 1 MiB plus one byte per file and MUST reject a file larger than 1 MiB before parsing it.
+
+JSON strings MUST contain only Unicode scalar values. Unpaired UTF-16 surrogate code points (U+D800–U+DFFF) MUST be rejected. Implementations MUST NOT apply Unicode normalization; distinct Unicode code-point sequences remain distinct inputs.
 
 ### 1.2 CORD-CJSON-1
 
@@ -22,11 +24,11 @@ For v0.1, canonicalization is defined only for the fixed Core objects below. Eve
 To produce CORD-CJSON-1 bytes:
 
 1. Parse the JSON object while rejecting duplicate keys.
-2. Validate its exact field set and value types.
+2. Validate its exact field set and value types, including rejection of unpaired surrogate code points.
 3. Serialize the object with keys sorted in ascending Unicode code-point order.
 4. Encode as UTF-8 without a BOM.
 5. Use no insignificant whitespace: no spaces after commas or colons.
-6. Use JSON string escaping; do not escape non-ASCII characters solely for ASCII compatibility. Escape quotation marks, reverse solidus, and control characters as required by JSON.
+6. Use the shortest JSON escapes for quotation mark, reverse solidus, and control characters: use `\\b`, `\\t`, `\\n`, `\\f`, and `\\r` for U+0008, U+0009, U+000A, U+000C, and U+000D; use lowercase hexadecimal `\\u00xx` for other U+0000–U+001F characters. Do not escape other Unicode scalar values.
 7. Do not append a newline to the canonical bytes.
 
 Implementations MUST NOT canonicalize arbitrary extension objects as part of Core v0.1. Future versions may adopt a separately specified general canonicalization standard.
@@ -95,8 +97,8 @@ A receipt is a set of hash commitments, not a digital signature.
 
 Given `bundle.json` and `receipt.json`, a verifier MUST:
 
-1. Read both files as raw bytes and reject files above its documented size limit.
-2. Decode strict UTF-8 and parse JSON, rejecting duplicate keys and invalid constants.
+1. Read both files as raw bytes and reject files above its documented size limit. The reference verifier reads at most the limit plus one byte before rejecting an oversized file.
+2. Decode strict UTF-8 and parse JSON, rejecting a BOM, duplicate keys, unpaired surrogates, and invalid constants.
 3. Require JSON objects with exactly the defined fields.
 4. Validate all field types, supported versions, timestamp syntax, and hash encodings.
 5. Compute the bundle hash from CORD-CJSON-1 bytes.
