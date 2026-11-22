@@ -81,7 +81,7 @@ A release should identify:
 
 ## Current implementation status (2026-11-22)
 
-Implemented on the work branch:
+Implemented on main (experimental where noted):
 - Strict Python Core verifier and receipt creation CLI.
 - Deterministic Core v0.1 specification and fixed test vector.
 - GitHub Actions test workflow.
@@ -91,8 +91,8 @@ Implemented on the work branch:
 
 Not yet production-ready:
 - No independent second-language implementation or interoperability vectors.
-- Experimental RFC 3161 timestamp-token verification with operator-configured TSA trust anchors; independent review and production hardening remain pending.
-- No key registry, rotation, revocation, or hardware-backed key custody.
+- Experimental RFC 3161 timestamp verification bound to exact Ed25519 receipt-signature bytes, including OpenSSL-generated integration fixtures, TSA chain/EKU and generation-time validation, optional full-chain CRL checks, and fail-closed Trust Store integration when revocation is unchecked.
+- No global key registry, automated key rotation, hardware-backed key custody, or OCSP-based revocation validation.
 - No hosted API, authentication, managed storage, or operational deployment.
 - No independent security audit or formal protocol review.
 
