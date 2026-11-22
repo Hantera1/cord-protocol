@@ -73,7 +73,7 @@ def _parse_trust_store(raw: bytes) -> dict[str, Any]:
                 CordValidationError(f"invalid JSON constant: {constant}")
             ),
         )
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
         raise CordValidationError(f"trust store is not valid UTF-8 JSON: {exc}") from exc
     if not isinstance(value, dict):
         raise CordValidationError("trust store must be a JSON object")
