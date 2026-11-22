@@ -138,3 +138,17 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 - [ ] Publish conformance vectors and complete independent interoperability and security review.
 
 **Status:** manifest specification and JSON Schema are draft artifacts. The current Python verifier remains Core-only; profile-aware verification is not implemented.
+
+
+## Profile Engine implementation — experimental v0.1
+
+- [x] Add a Python profile-aware verifier layered on the existing Core v0.1 verifier.
+- [x] Validate manifests against the published JSON Schema.
+- [x] Resolve exact profile versions through a local pinned registry; reject registry path traversal.
+- [x] Verify profile receipt commitments and validate profile evidence against pinned schemas.
+- [x] Add CLI documentation and positive/negative unit tests.
+- [ ] Run and record the full automated test suite in CI before merge.
+- [ ] Add immutable manifests and evidence schemas for the initial Clock and Luxury Asset profiles.
+- [ ] Implement profile-specific semantic validators, trust extensions, and independent interoperability tests.
+
+**Status:** implementation is on pull request #13 as an experimental draft. It is not merged or production-ready. Core v0.1 verifier semantics remain unchanged.
