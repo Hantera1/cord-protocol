@@ -2,7 +2,9 @@
   <img src="logo.png.PNG" alt="Cord Logo" width="400">
 </p>
 
-# Cord Protocol
+# CORD
+
+**An open protocol by Hantera · Created by KentPH**
 
 **Cord** is an open, vendor-neutral protocol draft for cryptographically verifiable evidence about AI and digital events.
 
@@ -79,6 +81,10 @@ Current voluntary crypto donation details are listed below. We will add hosted p
 
 Cord is published under the [Apache License 2.0](LICENSE).
 
-## Origin
+## Origin and attribution
 
-Cord was originally created by [Hantera1](https://github.com/Hantera1). This repository contains the reference specification and implementation.
+**CORD by Hantera — Created by KentPH.**
+
+Cord was initiated and is maintained as an open project by Hantera, founded by KentPH. The protocol is open for everyone to inspect, implement, use, and extend under the project license. Independent implementations and community contributions are welcome; the project's origin and official name should remain clearly attributed when referring to the original Cord project.
+
+Project creator: [KentPH](https://github.com/Hantera1) · Project home: [Hantera on GitHub](https://github.com/Hantera1)
