@@ -37,6 +37,32 @@ class CordSignatureTests(unittest.TestCase):
         with self.assertRaises(CordValidationError):
             verify_signed_receipt(RECEIPT, self.envelope, other, "test-key-1")
 
+    def test_non_string_key_id_fails_cleanly(self):
+        with self.assertRaises(CordValidationError):
+            sign_receipt(RECEIPT, self.private, 123)
+
+    def test_non_ed25519_private_key_fails_cleanly(self):
+        from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
+        with self.assertRaises(CordValidationError):
+            sign_receipt(RECEIPT, generate_private_key(public_exponent=65537, key_size=2048), "key")
+
+    def test_invalid_pem_fails_cleanly(self):
+        from verifier.signatures import load_private_key, load_public_key
+        with self.assertRaises(CordValidationError):
+            load_private_key(b"not a PEM")
+        with self.assertRaises(CordValidationError):
+            load_public_key(b"not a PEM")
+
+    def test_non_object_envelope_fails_cleanly(self):
+        with self.assertRaises(CordValidationError):
+            verify_signed_receipt(RECEIPT, [], self.public, "test-key-1")
+
+    def test_non_ed25519_public_key_fails_cleanly(self):
+        from cryptography.hazmat.primitives.asymmetric.rsa import generate_private_key
+        other = generate_private_key(public_exponent=65537, key_size=2048).public_key()
+        with self.assertRaises(CordValidationError):
+            verify_signed_receipt(RECEIPT, self.envelope, other, "test-key-1")
+
 
 if __name__ == "__main__":
     unittest.main()
