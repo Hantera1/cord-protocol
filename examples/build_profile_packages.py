@@ -8,11 +8,13 @@ from __future__ import annotations
 import argparse
 import json
 from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT))
 
 from verifier.profile_engine import create_profile_receipt
 from verifier.verify import create_receipt
-
-ROOT = Path(__file__).resolve().parents[1]
 PROFILES = ROOT / "profiles"
 EVIDENCE_ROOT = ROOT / "examples" / "profile-packages"
 NOW = "2026-11-22T10:00:05Z"
