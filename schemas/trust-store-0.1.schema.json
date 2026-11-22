@@ -4,7 +4,11 @@
   "title": "CORD Trust Store 0.1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["trust_store_version", "store_id", "keys"],
+  "required": [
+    "trust_store_version",
+    "store_id",
+    "keys"
+  ],
   "properties": {
     "trust_store_version": {
       "const": "0.1"
@@ -30,7 +34,13 @@
     "key": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["key_id", "algorithm", "public_key", "roles", "status"],
+      "required": [
+        "key_id",
+        "algorithm",
+        "public_key",
+        "roles",
+        "status"
+      ],
       "properties": {
         "key_id": {
           "type": "string",
@@ -56,7 +66,11 @@
           }
         },
         "status": {
-          "enum": ["active", "retired", "revoked"]
+          "enum": [
+            "active",
+            "retired",
+            "revoked"
+          ]
         },
         "not_before": {
           "$ref": "#/$defs/timestamp"
@@ -70,22 +84,57 @@
         "revocation_reason": {
           "type": "string",
           "maxLength": 512
+        },
+        "retired_at": {
+          "$ref": "#/$defs/timestamp"
         }
       },
       "allOf": [
         {
           "if": {
             "properties": {
-              "status": { "const": "revoked" }
+              "status": {
+                "const": "revoked"
+              }
             },
-            "required": ["status"]
+            "required": [
+              "status"
+            ]
           },
           "then": {
-            "required": ["revoked_at"]
+            "required": [
+              "revoked_at"
+            ]
           },
           "else": {
             "not": {
-              "required": ["revoked_at"]
+              "required": [
+                "revoked_at"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "retired"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "retired_at"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "retired_at"
+              ]
             }
           }
         }
