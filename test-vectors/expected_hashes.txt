@@ -1,14 +1,13 @@
-# Cord Core Test Vector Draft 0.1
+# Cord Core v0.1 deterministic test vector
 
 Bundle file: bundle_valid.json
 Receipt file: receipt_valid.json
 
-Expected verification result: PASS (after hashes are computed)
+Expected result: PASS
 
-bundleHash = SHA256(CJSON(bundle_valid))
-bundleFileHash = SHA256(bundle_valid file bytes)
+- bundle_hash: e96cf43c3babc44603736cb98eecc924226a7aadc199c757414beba5e7a1198b
+- bundle_file_hash: bb03ba5a0b0a2a8c2f3980fbcfe334f035de4966d7e6b1dcc459cb9612e1fe2d
 
-Note:
-- Replace TO_BE_COMPUTED values in receipt_valid.json
-- After replacement, verification MUST return PASS
-- Any byte modification MUST result in FAIL
+The receipt contains these values. The bundle hash is computed from CORD-CJSON-1 bytes.
+The bundle file hash is computed from the exact UTF-8 file bytes, including the final newline.
+Changing any bundle byte or any receipt hash value MUST result in FAIL.
