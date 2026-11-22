@@ -22,6 +22,7 @@ from verifier.verify import (
     MAX_FILE_BYTES,
     verify_files,
 )
+from verifier.profile_semantics import ProfileSemanticError, validate_profile_semantics
 
 MANIFEST_VERSION = "0.1"
 PROFILE_RECEIPT_VERSION = "0.1"
@@ -264,6 +265,7 @@ def verify_profile_package(
         schema_path = _safe_registry_file(registry_root, schema_relpath)
         evidence_schema, _ = _load_json(schema_path, "pinned profile evidence schema")
         _validate_schema(evidence, evidence_schema, "profile evidence")
+        validate_profile_semantics(profile_id, evidence)
         checks["profile_validation"] = {
             "status": "PASS",
             "profile_id": profile_id,
@@ -290,7 +292,7 @@ def verify_profile_package(
             "checks": checks,
             "error": str(exc),
         }
-    except (ProfileVerificationError, CordValidationError, OSError) as exc:
+    except (ProfileVerificationError, ProfileSemanticError, CordValidationError, OSError) as exc:
         return {
             "status": "FAIL",
             "verifier": "CORD-PROFILE-ENGINE-0.1-draft",
