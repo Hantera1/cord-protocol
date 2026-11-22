@@ -56,6 +56,8 @@ def _reject_constant(value: str) -> None:
 def _load_json(data: bytes, label: str) -> dict[str, Any]:
     if len(data) > MAX_FILE_BYTES:
         raise CordValidationError(f"{label} exceeds {MAX_FILE_BYTES} bytes")
+    if data.startswith(b"\xef\xbb\xbf"):
+        raise CordValidationError(f"{label} MUST NOT contain a UTF-8 BOM")
     try:
         text = data.decode("utf-8", errors="strict")
         value = json.loads(
@@ -70,15 +72,23 @@ def _load_json(data: bytes, label: str) -> dict[str, Any]:
     return value
 
 
+def _reject_surrogates(value: str, field: str) -> None:
+    if any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+        raise CordValidationError(f"{field} must contain only Unicode scalar values")
+
+
 def canonical_json(bundle: dict[str, Any]) -> bytes:
-    """CORD-CJSON-1: sorted keys, UTF-8, compact JSON, no ASCII escaping."""
-    return json.dumps(
-        bundle,
-        ensure_ascii=False,
-        separators=(",", ":"),
-        sort_keys=True,
-        allow_nan=False,
-    ).encode("utf-8")
+    """CORD-CJSON-1: code-point key order, compact UTF-8 JSON, no ASCII escaping."""
+    try:
+        return json.dumps(
+            bundle,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+            allow_nan=False,
+        ).encode("utf-8")
+    except (UnicodeEncodeError, ValueError) as exc:
+        raise CordValidationError(f"bundle cannot be canonicalized as CORD-CJSON-1: {exc}") from exc
 
 
 def sha256(data: bytes) -> str:
@@ -99,6 +109,7 @@ def _validate_fields(obj: dict[str, Any], expected: set[str], label: str) -> Non
     for key, value in obj.items():
         if not isinstance(value, str):
             raise CordValidationError(f"{label}.{key} must be a string")
+        _reject_surrogates(value, f"{label}.{key}")
 
 
 def _validate_timestamp(value: str, field: str) -> None:
