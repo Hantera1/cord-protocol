@@ -38,7 +38,7 @@ function parseJsonStrict(text, label) {
           i += 5;
           continue;
         }
-        if (!['"', "\\\\", "/", "b", "f", "n", "r", "t"].includes(e)) fail("invalid escape");
+        if (!(e === '"' || e === String.fromCharCode(92) || e === "/" || ["b", "f", "n", "r", "t"].includes(e))) fail("invalid escape");
       }
       i++;
     }
