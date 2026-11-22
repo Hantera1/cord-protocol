@@ -306,6 +306,7 @@ Key documents:
 - [CORD Clock Verification Profile](../spec/CLOCK-VERIFICATION.md)
 - [CORD Luxury Asset Verification Profile](../spec/LUXURY-ASSET-VERIFICATION.md)
 - [Signed Receipt Extension](../spec/SIGNED-RECEIPT.md)
+- [Trust Store Format](../spec/TRUST-STORE.md) (draft)
 - [Event Chain Extension](../spec/EVENT-CHAIN.md)
 - [CORD Security Model](SECURITY-MODEL.md)
 

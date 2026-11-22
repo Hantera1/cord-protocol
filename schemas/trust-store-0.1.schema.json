@@ -1,0 +1,144 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cordprotocol.org/schemas/trust-store-0.1.schema.json",
+  "title": "CORD Trust Store 0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "trust_store_version",
+    "store_id",
+    "keys"
+  ],
+  "properties": {
+    "trust_store_version": {
+      "const": "0.1"
+    },
+    "store_id": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(\\S.*\\S|\\S)$"
+    },
+    "keys": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/key"
+      }
+    }
+  },
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+    },
+    "key": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key_id",
+        "algorithm",
+        "public_key",
+        "roles",
+        "status"
+      ],
+      "properties": {
+        "key_id": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(\\S.*\\S|\\S)$"
+        },
+        "algorithm": {
+          "const": "Ed25519"
+        },
+        "public_key": {
+          "type": "string",
+          "contentEncoding": "base64",
+          "pattern": "^[A-Za-z0-9+/]{43}=$"
+        },
+        "roles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(\\S.*\\S|\\S)$"
+          }
+        },
+        "status": {
+          "enum": [
+            "active",
+            "retired",
+            "revoked"
+          ]
+        },
+        "not_before": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "not_after": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revoked_at": {
+          "$ref": "#/$defs/timestamp"
+        },
+        "revocation_reason": {
+          "type": "string",
+          "maxLength": 512
+        },
+        "retired_at": {
+          "$ref": "#/$defs/timestamp"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "revoked"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "revoked_at"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "revoked_at"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "retired"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "retired_at"
+            ]
+          },
+          "else": {
+            "not": {
+              "required": [
+                "retired_at"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

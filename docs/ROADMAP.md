@@ -37,6 +37,9 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 ## Stage 3 — Trust extensions
 
 - [x] Specify an experimental Ed25519 signed-receipt profile and key identifier.
+- [x] Draft an offline Trust Store v0.1 format and JSON Schema for pinned public keys and deployment-defined roles.
+- [ ] Implement strict trust-store parsing, duplicate key-ID rejection, public-key decoding, and policy evaluation.
+- [ ] Define trusted-time-backed historical key validity and revocation semantics.
 - [ ] Specify and implement trusted timestamp evidence (RFC 3161 token validation and trust anchors remain pending).
 - [ ] Specify key rotation, revocation, and algorithm agility.
 - [ ] Define provenance and policy metadata extensions.
