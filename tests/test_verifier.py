@@ -34,8 +34,10 @@ class CordVerifierTests(unittest.TestCase):
 
     def test_published_test_vector_passes(self):
         root = Path(__file__).resolve().parents[1]
-        result = verify_files(root / "test-vectors" / "bundle_valid.json",
-                              root / "test-vectors" / "receipt_valid.json")
+        result = verify_files(
+            root / "test-vectors" / "bundle_valid.json",
+            root / "test-vectors" / "receipt_valid.json",
+        )
         self.assertEqual(result["status"], "PASS")
 
     def test_bundle_byte_change_fails(self):
@@ -88,7 +90,7 @@ class CordVerifierTests(unittest.TestCase):
             verify_files(self.bundle, self.receipt)
 
     def test_utf8_bom_rejected(self):
-        self.bundle.write_bytes(b"\\xef\\xbb\\xbf" + json.dumps(BUNDLE).encode("utf-8"))
+        self.bundle.write_bytes(bytes.fromhex("efbbbf") + json.dumps(BUNDLE).encode("utf-8"))
         with self.assertRaises(CordValidationError):
             verify_files(self.bundle, self.receipt)
 
