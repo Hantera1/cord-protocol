@@ -10,7 +10,7 @@ import base64
 import json
 from typing import Any
 
-from cryptography.exceptions import InvalidSignature
+from cryptography.exceptions import InvalidSignature, UnsupportedAlgorithm
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import (
     Ed25519PrivateKey,
@@ -31,14 +31,20 @@ def canonical_receipt(receipt: dict[str, Any]) -> bytes:
 
 
 def load_private_key(pem: bytes, password: bytes | None = None) -> Ed25519PrivateKey:
-    key = serialization.load_pem_private_key(pem, password=password)
+    try:
+        key = serialization.load_pem_private_key(pem, password=password)
+    except (TypeError, ValueError, UnsupportedAlgorithm) as exc:
+        raise CordValidationError("invalid private key PEM or password") from exc
     if not isinstance(key, Ed25519PrivateKey):
         raise CordValidationError("private key must be Ed25519")
     return key
 
 
 def load_public_key(pem: bytes) -> Ed25519PublicKey:
-    key = serialization.load_pem_public_key(pem)
+    try:
+        key = serialization.load_pem_public_key(pem)
+    except (TypeError, ValueError, UnsupportedAlgorithm) as exc:
+        raise CordValidationError("invalid public key PEM") from exc
     if not isinstance(key, Ed25519PublicKey):
         raise CordValidationError("trusted public key must be Ed25519")
     return key
@@ -47,8 +53,10 @@ def load_public_key(pem: bytes) -> Ed25519PublicKey:
 def sign_receipt(
     receipt: dict[str, Any], private_key: Ed25519PrivateKey, key_id: str
 ) -> dict[str, str]:
-    if not key_id or key_id.strip() != key_id:
+    if not isinstance(key_id, str) or not key_id or key_id.strip() != key_id:
         raise CordValidationError("key_id must be a non-empty trimmed string")
+    if not isinstance(private_key, Ed25519PrivateKey):
+        raise CordValidationError("private_key must be an Ed25519 private key")
     signature = private_key.sign(canonical_receipt(receipt))
     return {
         "spec_version": SPEC_VERSION,
@@ -64,6 +72,12 @@ def verify_signed_receipt(
     trusted_public_key: Ed25519PublicKey,
     expected_key_id: str,
 ) -> dict[str, Any]:
+    if not isinstance(envelope, dict):
+        raise CordValidationError("signature envelope must be an object")
+    if not isinstance(trusted_public_key, Ed25519PublicKey):
+        raise CordValidationError("trusted_public_key must be an Ed25519 public key")
+    if not isinstance(expected_key_id, str) or not expected_key_id or expected_key_id.strip() != expected_key_id:
+        raise CordValidationError("expected_key_id must be a non-empty trimmed string")
     validate_receipt(receipt)
     _validate_fields(envelope, ENVELOPE_FIELDS, "signature envelope")
     if envelope["spec_version"] != SPEC_VERSION:
