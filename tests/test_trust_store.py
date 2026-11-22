@@ -148,6 +148,43 @@ class TrustStoreTests(unittest.TestCase):
         with self.assertRaises(CordValidationError):
             load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
 
+    def test_utf8_bom_is_rejected(self):
+        raw = b"\\xef\\xbb\\xbf" + b'{"trust_store_version":"0.1","store_id":"x","keys":[]}'
+        self.path.write_bytes(raw)
+        with self.assertRaisesRegex(CordValidationError, "BOM"):
+            load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
+
+    def test_invalid_utf8_is_rejected(self):
+        raw = b'{"trust_store_version":"0.1","store_id":"x","keys":[]}\\xff'
+        self.path.write_bytes(raw)
+        with self.assertRaises(CordValidationError):
+            load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
+
+    def test_unpaired_surrogate_is_rejected(self):
+        raw = b'{"trust_store_version":"0.1","store_id":"\\\\ud800","keys":[]}'
+        self.path.write_bytes(raw)
+        with self.assertRaisesRegex(CordValidationError, "surrogate"):
+            load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
+
+    def test_oversized_trust_store_is_rejected(self):
+        raw = b" " * (1_048_576 + 1)
+        self.path.write_bytes(raw)
+        with self.assertRaisesRegex(CordValidationError, "exceeds"):
+            load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
+
+    def test_invalid_signature_fails(self):
+        store = self.load()
+        bad_envelope = dict(self.envelope, signature=base64.b64encode(b"\\x00" * 64).decode("ascii"))
+        with self.assertRaisesRegex(CordValidationError, "signature verification failed"):
+            verify_signed_receipt_with_store(RECEIPT, bad_envelope, store)
+
+    def test_revoked_key_without_trusted_time_is_indeterminate(self):
+        revoked = dict(self.record, status="revoked", revoked_at="2026-03-07T00:00:00Z")
+        store = self.load(revoked)
+        result = verify_signed_receipt_with_store(RECEIPT, self.envelope, store)
+        self.assertEqual(result["status"], "INDETERMINATE")
+        self.assertEqual(result["historical_key_validity"], "INDETERMINATE")
+
 
 if __name__ == "__main__":
     unittest.main()
