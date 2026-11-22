@@ -33,6 +33,8 @@ SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 def _parse_time(value: str, field: str) -> datetime:
+    if not isinstance(value, str):
+        raise CordValidationError(f"{field} must be a timestamp string")
     _validate_timestamp(value, field)
     return datetime.fromisoformat(value[:-1] + "+00:00")
 
@@ -98,7 +100,7 @@ def load_trust_store(
             raise CordValidationError(f"{label}.roles must not contain duplicates")
 
         status = record["status"]
-        if status not in {"active", "retired", "revoked"}:
+        if not isinstance(status, str) or status not in {"active", "retired", "revoked"}:
             raise CordValidationError(f"{label}.status is unsupported")
 
         for field in ("not_before", "not_after", "retired_at", "revoked_at"):
@@ -150,8 +152,10 @@ def verify_signed_receipt_with_store(
 ) -> dict[str, Any]:
     """Verify a receipt signature using a key from an already pinned trust store.
 
-    If trusted_signature_time is absent, the function does not use the
-    producer-declared receipt.created_at as a substitute.
+    The caller is responsible for independently validating trusted_signature_time
+    (for example, from a supported timestamp authority). This function validates
+    its syntax and applies policy; it does not validate a TSA token or time source.
+    If no trusted time is supplied, receipt.created_at is never used as a substitute.
     """
     key_id = envelope.get("key_id") if isinstance(envelope, dict) else None
     _non_empty_trimmed(key_id, "signature envelope.key_id")
@@ -211,7 +215,7 @@ def verify_signed_receipt_with_store(
         "key_resolution": "PASS",
         "key_id": key_id,
         "key_status": record["status"],
-        "role_authorization": "PASS" if required_role is None or required_role in record["roles"] else "FAIL",
+        "role_authorization": "NOT_REQUIRED" if required_role is None else "PASS",
         "historical_key_validity": temporal_status,
         "historical_key_validity_reason": temporal_reason,
         "trust_store_id": trust_store["store_id"],
