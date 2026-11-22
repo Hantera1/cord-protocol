@@ -47,6 +47,10 @@ python -m unittest discover -s tests -v
 - [Master Architecture](docs/MASTER-ARCHITECTURE.md)
 - [Legal, Privacy and Security Requirements](docs/LEGAL-AND-PRIVACY-REQUIREMENTS.md)
 - [Repository Change Plan](docs/REPOSITORY-CHANGE-PLAN.md)
+- [UAE Royalty Licence Term Sheet](docs/licensing/CORD-UAE-ROYALTY-TERM-SHEET.md)
+- [Royalty Reporting Standard](docs/licensing/CORD-ROYALTY-REPORTING-STANDARD.md)
+- [KentPH Attribution and Brand Policy](docs/licensing/KENTPH-ATTRIBUTION-AND-BRAND-POLICY.md)
+- [UAE Launch and GitHub Change Plan](docs/licensing/CORD-UAE-LAUNCH-AND-GITHUB-CHANGE-PLAN.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
 
