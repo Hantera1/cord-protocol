@@ -1,0 +1,49 @@
+{
+  "extension": "cord.trade.evidence",
+  "extension_version": "0.1",
+  "event_id": "demo-silver-evt-001",
+  "event_type": "assay.issued",
+  "created_at": "2026-11-22T12:00:00Z",
+  "core_receipt_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "trust_class": "PROVIDER_ATTESTED",
+  "transaction_id": "demo-silver-lot-001",
+  "actors": [
+    {
+      "actor_ref": "trader-demo-01",
+      "role": "seller"
+    },
+    {
+      "actor_ref": "assayer-demo-01",
+      "role": "assayer"
+    }
+  ],
+  "asset": {
+    "category": "metal",
+    "material": "silver",
+    "lot_id": "SYNTHETIC-AG-LOT-001",
+    "weight": {
+      "value": 1000,
+      "unit": "g"
+    },
+    "purity": "999/1000"
+  },
+  "claims": [
+    {
+      "claim": "assay_purity",
+      "value": "999/1000",
+      "trust_class": "PROVIDER_ATTESTED",
+      "source_ref": "synthetic-assay-report-001"
+    }
+  ],
+  "documents": [
+    {
+      "document_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "media_type": "application/pdf",
+      "document_role": "assay_report"
+    }
+  ],
+  "disclosure": {
+    "contains_personal_data": false,
+    "visibility": "counterparties"
+  }
+}
