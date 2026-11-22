@@ -121,6 +121,7 @@ must come from trusted local configuration, not from the evidence package.
 import json
 import os
 from verifier.trust_store import (
+    load_signed_receipt_inputs,
     load_trust_store,
     verify_signed_receipt_with_store,
 )
@@ -131,10 +132,10 @@ trust_store = load_trust_store(
     expected_sha256=os.environ["CORD_TRUST_STORE_SHA256"],
 )
 
-with open("receipt.json", encoding="utf-8") as stream:
-    receipt = json.load(stream)
-with open("receipt.signature.json", encoding="utf-8") as stream:
-    envelope = json.load(stream)
+receipt, envelope = load_signed_receipt_inputs(
+    "receipt.json",
+    "receipt.signature.json",
+)
 
 result = verify_signed_receipt_with_store(
     receipt,
