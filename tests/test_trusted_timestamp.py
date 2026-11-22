@@ -153,7 +153,7 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
     def test_untrusted_tsa_root_fails(self):
         with self.assertRaisesRegex(CordValidationError, "validation failed"):
             verify_receipt_signature_timestamp(
-                self.token.read_bytes(), ENVELOPE, self.other_ca
+                self.token.read_bytes(), self.envelope, self.other_ca
             )
 
     def test_crl_is_required_when_policy_demands_it(self):
