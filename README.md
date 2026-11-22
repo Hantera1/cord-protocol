@@ -94,6 +94,19 @@ Commercial licensing separates the open Cord Core protocol from proprietary Trad
 
 **Ownership gate:** the legal licensor is not confirmed until the IP chain of title and legal entity are documented. Existing Cord Core code is published under Apache 2.0; commercial licensing must not purport to withdraw those rights.
 
+## Cord Trade License v1 — commercial workstream
+
+The selected commercial direction is a new, separate Cord Trade licensing company, selling both trade-agreement template packs and Cord Trade software/workflows, with the UAE as the first target market.
+
+- [Cord Trade License product definition](docs/CORD-TRADE-LICENSE-PRODUCT.md)
+- [New company and ownership setup decision](docs/NEWCO-OWNERSHIP-AND-SETUP.md)
+- [Commercial license agreement term sheet](docs/CORD-TRADE-LICENSE-AGREEMENT-TERM-SHEET.md)
+- [UAE go-to-market checklist](docs/UAE-GO-TO-MARKET-CHECKLIST.md)
+- [License sales ledger model](docs/LICENSE-SALES-LEDGER.md)
+- [Public license certificate schema](spec/LICENSE-CERTIFICATE-PUBLIC-0.1.schema.json)
+
+These are planning and implementation specifications, not legal advice or executed contracts. The new legal entity, jurisdiction, IP assignments, trademarks, licensing permissions and customer agreements remain to be completed.
+
 ## Experimental extensions
 
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
