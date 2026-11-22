@@ -8,7 +8,11 @@ from pathlib import Path
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from verifier.signatures import sign_receipt
-from verifier.trust_store import load_trust_store, verify_signed_receipt_with_store
+from verifier.trust_store import (
+    load_signed_receipt_inputs,
+    load_trust_store,
+    verify_signed_receipt_with_store,
+)
 from verifier.verify import CordValidationError
 
 RECEIPT = {
@@ -177,6 +181,25 @@ class TrustStoreTests(unittest.TestCase):
         bad_envelope = dict(self.envelope, signature=base64.b64encode(b"\x00" * 64).decode("ascii"))
         with self.assertRaisesRegex(CordValidationError, "signature verification failed"):
             verify_signed_receipt_with_store(RECEIPT, bad_envelope, store)
+
+    def test_signed_receipt_inputs_reject_duplicate_json_keys(self):
+        receipt_raw = b'{"spec_version":"0.1","spec_version":"0.1"}'
+        envelope_raw = json.dumps(self.envelope).encode("utf-8")
+        receipt_path = self.path.parent / "receipt.json"
+        envelope_path = self.path.parent / "envelope.json"
+        receipt_path.write_bytes(receipt_raw)
+        envelope_path.write_bytes(envelope_raw)
+        with self.assertRaisesRegex(CordValidationError, "duplicate JSON key"):
+            load_signed_receipt_inputs(receipt_path, envelope_path)
+
+    def test_signed_receipt_inputs_load_valid_documents(self):
+        receipt_path = self.path.parent / "receipt.json"
+        envelope_path = self.path.parent / "envelope.json"
+        receipt_path.write_text(json.dumps(RECEIPT), encoding="utf-8")
+        envelope_path.write_text(json.dumps(self.envelope), encoding="utf-8")
+        receipt, envelope = load_signed_receipt_inputs(receipt_path, envelope_path)
+        self.assertEqual(receipt, RECEIPT)
+        self.assertEqual(envelope, self.envelope)
 
     def test_revoked_key_without_trusted_time_is_indeterminate(self):
         revoked = dict(self.record, status="revoked", revoked_at="2026-03-07T00:00:00Z")
