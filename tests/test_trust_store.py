@@ -149,19 +149,19 @@ class TrustStoreTests(unittest.TestCase):
             load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
 
     def test_utf8_bom_is_rejected(self):
-        raw = b"\\xef\\xbb\\xbf" + b'{"trust_store_version":"0.1","store_id":"x","keys":[]}'
+        raw = b"\xef\xbb\xbf" + b'{"trust_store_version":"0.1","store_id":"x","keys":[]}'
         self.path.write_bytes(raw)
         with self.assertRaisesRegex(CordValidationError, "BOM"):
             load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
 
     def test_invalid_utf8_is_rejected(self):
-        raw = b'{"trust_store_version":"0.1","store_id":"x","keys":[]}\\xff'
+        raw = b'{"trust_store_version":"0.1","store_id":"x","keys":[]}\xff'
         self.path.write_bytes(raw)
         with self.assertRaises(CordValidationError):
             load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
 
     def test_unpaired_surrogate_is_rejected(self):
-        raw = b'{"trust_store_version":"0.1","store_id":"\\\\ud800","keys":[]}'
+        raw = b'{"trust_store_version":"0.1","store_id":"\\ud800","keys":[]}'
         self.path.write_bytes(raw)
         with self.assertRaisesRegex(CordValidationError, "surrogate"):
             load_trust_store(self.path, hashlib.sha256(raw).hexdigest())
@@ -174,7 +174,7 @@ class TrustStoreTests(unittest.TestCase):
 
     def test_invalid_signature_fails(self):
         store = self.load()
-        bad_envelope = dict(self.envelope, signature=base64.b64encode(b"\\x00" * 64).decode("ascii"))
+        bad_envelope = dict(self.envelope, signature=base64.b64encode(b"\x00" * 64).decode("ascii"))
         with self.assertRaisesRegex(CordValidationError, "signature verification failed"):
             verify_signed_receipt_with_store(RECEIPT, bad_envelope, store)
 
