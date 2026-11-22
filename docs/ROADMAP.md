@@ -37,7 +37,18 @@ The TypeScript SDK accepts parsed objects and exact bundle bytes. A duplicate-ke
 - [ ] Define key rotation, revocation, algorithm agility, and key custody.
 - [ ] Add test vectors and threat analysis for every trust extension.
 
-## Stage 4 — Optional services and sustainability
+## Stage 4 — Trade evidence extension (experimental)
+
+- [x] Define a detached Trade evidence architecture without changing Core.
+- [x] Define a versioned JSON Schema for business-event evidence.
+- [x] Add Python schema validation helper and negative tests.
+- [x] Add synthetic watch-sale and silver-lot examples.
+- [ ] Add deterministic extension canonicalization test vectors and event-chain transition rules.
+- [ ] Add TypeScript Trade validator and cross-language conformance tests.
+- [ ] Add signed actor/provider attestations and timestamp-token verification.
+- [ ] Add real payment, e-signature, logistics and assay adapters only after provider and legal review.
+
+## Stage 5 — Optional services and sustainability
 
 - [ ] Offer a hosted verification API as a convenience, while preserving offline verification.
 - [ ] Define authentication, rate limits, abuse controls, privacy, retention, export, and deletion before accepting customer evidence.
