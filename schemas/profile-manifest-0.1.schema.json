@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cordprotocol.org/schemas/profile-manifest-0.1.schema.json",
+  "title": "CORD Application Profile Manifest v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "profile_id",
+    "profile_version",
+    "profile_name",
+    "profile_status",
+    "core_compatibility",
+    "specification_uri",
+    "evidence_schema_uri",
+    "evidence_media_type",
+    "verification"
+  ],
+  "properties": {
+    "manifest_version": {
+      "const": "0.1"
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(\\.[a-z0-9-]+)+$"
+    },
+    "profile_version": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?$"
+    },
+    "profile_name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "profile_status": {
+      "enum": ["draft", "candidate", "stable"]
+    },
+    "core_compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["min_version", "max_version"],
+      "properties": {
+        "min_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "max_version": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "specification_uri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "evidence_schema_uri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "evidence_media_type": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required_checks", "result_model"],
+      "properties": {
+        "required_checks": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "core_integrity",
+              "profile_package_integrity",
+              "manifest_validation",
+              "profile_schema_validation"
+            ]
+          }
+        },
+        "result_model": {
+          "const": "CORD-PROFILE-RESULT-0.1"
+        }
+      }
+    },
+    "publisher": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2048
+    },
+    "required_extensions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["extension_id", "extension_version"],
+        "properties": {
+          "extension_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "extension_version": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "supersedes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "documentation_uri": {
+      "type": "string",
+      "format": "uri"
+    },
+    "security_considerations_uri": {
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}
