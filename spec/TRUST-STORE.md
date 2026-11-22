@@ -42,10 +42,11 @@ Each key record MUST contain exactly:
 | `status` | string | `active`, `retired`, or `revoked` |
 | `not_before` | string | Optional RFC 3339 UTC timestamp ending in `Z` |
 | `not_after` | string | Optional RFC 3339 UTC timestamp ending in `Z` |
+| `retired_at` | string | Required when status is `retired`; otherwise MUST be absent |
 | `revoked_at` | string | Required when status is `revoked`; otherwise MUST be absent |
 | `revocation_reason` | string | Optional operator-supplied reason; descriptive, not cryptographic evidence |
 
-The interval, when both bounds exist, MUST satisfy `not_before < not_after`. A key record MUST NOT contain both `not_before` or `not_after` values that make the validity interval empty.
+The interval, when both bounds exist, MUST satisfy `not_before < not_after`. A key record MUST NOT contain both `not_before` or `not_after` values that make the validity interval empty. `retired_at` and `revoked_at` record the operator-declared effective lifecycle time; neither is independently trusted time evidence.
 
 The public key MUST be decoded strictly. Invalid Base64, non-canonical Base64, or a decoded length other than 32 bytes MUST be rejected. The algorithm MUST NOT be inferred from key length or file extension.
 
@@ -81,8 +82,8 @@ Trusted timestamp evidence, certificate path validation, revocation-status proto
 The trust store records an operator's current view of key status. It is not an append-only key history and does not itself prove when a change was made.
 
 - **active:** the key is currently configured for verification, subject to validity bounds and local policy.
-- **retired:** the key is no longer intended for new signing. Historical verification requires adequate trusted time evidence and an explicit policy.
-- **revoked:** the operator has withdrawn trust in the key. The reason and effective handling are determined by local policy; the field `revoked_at` is an operator assertion, not trusted time evidence.
+- **retired:** the key is no longer intended for new signing from `retired_at`. Historical verification before retirement requires adequate trusted time evidence and an explicit policy.
+- **revoked:** the operator has withdrawn trust in the key from `revoked_at`. The reason and effective handling are determined by local policy; the field `revoked_at` is an operator assertion, not trusted time evidence.
 
 Key rotation SHOULD use a new `key_id` and a new key pair. A key ID MUST NOT be reassigned to different key material within the same trust-store history. Private keys SHOULD be generated and held using an appropriately protected key-management system. Private keys MUST NOT be included in a trust store or evidence package.
 
