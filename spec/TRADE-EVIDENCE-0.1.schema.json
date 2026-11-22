@@ -341,6 +341,44 @@
           ]
         }
       }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim",
+          "value",
+          "trust_class"
+        ],
+        "properties": {
+          "claim": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "value": {
+            "type": [
+              "string",
+              "number",
+              "boolean"
+            ]
+          },
+          "trust_class": {
+            "enum": [
+              "DECLARED",
+              "ACKNOWLEDGED",
+              "PROVIDER_ATTESTED",
+              "INDEPENDENTLY_AUDITED"
+            ]
+          },
+          "source_ref": {
+            "type": "string",
+            "maxLength": 512
+          }
+        }
+      }
     }
   }
 }
