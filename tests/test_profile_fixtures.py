@@ -1,5 +1,7 @@
 """End-to-end tests for the initial CORD application profile fixtures."""
 import json
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -57,6 +59,19 @@ class InitialProfileFixtureTests(unittest.TestCase):
             package / "profile-receipt.json",
             created_at="2026-11-22T10:00:06Z",
         )
+
+    def test_example_builder_creates_both_verifiable_packages(self):
+        output = self.root / "built-packages"
+        subprocess.run(
+            [sys.executable, str(ROOT / "examples" / "build_profile_packages.py"),
+             "--output-dir", str(output)],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        for profile_name in ("luxury-asset", "clock"):
+            result = verify_profile_package(output / profile_name, PROFILE_ROOT)
+            self.assertEqual(result["status"], "PASS", result)
 
     def test_luxury_asset_fixture_passes(self):
         result = verify_profile_package(self.build_package("luxury-asset"), PROFILE_ROOT)
