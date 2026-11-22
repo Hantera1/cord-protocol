@@ -6,17 +6,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from verifier.trusted_timestamp import verify_receipt_signature_timestamp
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from verifier.signatures import sign_receipt
+from verifier.trusted_timestamp import verify_receipt_signature_timestamp, verify_signed_receipt_with_timestamp
 from verifier.verify import CordValidationError
 
 OPENSSL = shutil.which("openssl")
-SIGNATURE = bytes(range(64))
-ENVELOPE = {
-    "spec_version": "0.1",
-    "alg": "Ed25519",
-    "key_id": "integration-test-key",
-    "signature": base64.b64encode(SIGNATURE).decode("ascii"),
-}
 
 
 @unittest.skipUnless(OPENSSL, "OpenSSL is required for RFC 3161 integration tests")
@@ -32,7 +27,28 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
         cls.tsa_cert = cls.root / "tsa.pem"
         cls.token = cls.root / "token.der"
         cls.data = cls.root / "signature.bin"
-        cls.data.write_bytes(SIGNATURE)
+        cls.private_key = Ed25519PrivateKey.generate()
+        cls.key_id = "integration-test-key"
+        cls.receipt = {
+            "spec_version": "0.1",
+            "bundle_hash": "a" * 64,
+            "bundle_file_hash": "b" * 64,
+            "created_at": "2026-11-22T12:00:00Z",
+        }
+        cls.envelope = sign_receipt(cls.receipt, cls.private_key, cls.key_id)
+        cls.signature = base64.b64decode(cls.envelope["signature"], validate=True)
+        cls.data.write_bytes(cls.signature)
+        cls.trust_store = {
+            "store_id": "integration-test-store",
+            "sha256": "c" * 64,
+            "keys": {
+                cls.key_id: {
+                    "public_key_object": cls.private_key.public_key(),
+                    "roles": ["manufacturer"],
+                    "status": "active",
+                }
+            },
+        }
 
         def run(args):
             result = subprocess.run(
@@ -118,7 +134,7 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
 
     def test_real_rfc3161_token_passes(self):
         result = verify_receipt_signature_timestamp(
-            self.token.read_bytes(), ENVELOPE, self.ca
+            self.token.read_bytes(), self.envelope, self.ca
         )
         self.assertEqual(result["status"], "PASS")
         self.assertEqual(result["message_imprint"], "PASS")
@@ -130,7 +146,7 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
         self.assertTrue(result["generation_time"].endswith("Z"))
 
     def test_wrong_signature_imprint_fails(self):
-        altered = dict(ENVELOPE, signature=base64.b64encode(b"x" * 64).decode("ascii"))
+        altered = dict(self.envelope, signature=base64.b64encode(b"x" * 64).decode("ascii"))
         with self.assertRaisesRegex(CordValidationError, "validation failed"):
             verify_receipt_signature_timestamp(self.token.read_bytes(), altered, self.ca)
 
@@ -143,8 +159,22 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
     def test_crl_is_required_when_policy_demands_it(self):
         with self.assertRaisesRegex(CordValidationError, "CRL checking is required"):
             verify_receipt_signature_timestamp(
-                self.token.read_bytes(), ENVELOPE, self.ca, require_crl=True
+                self.token.read_bytes(), self.envelope, self.ca, require_crl=True
             )
+
+    def test_timestamp_flows_into_trust_store_policy(self):
+        result = verify_signed_receipt_with_timestamp(
+            self.receipt,
+            self.envelope,
+            self.trust_store,
+            self.token.read_bytes(),
+            self.ca,
+            required_role="manufacturer",
+        )
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["timestamp"]["status"], "PASS")
+        self.assertEqual(result["trust"]["historical_key_validity"], "PASS")
+        self.assertEqual(result["trust"]["role_authorization"], "PASS")
 
 
 if __name__ == "__main__":
