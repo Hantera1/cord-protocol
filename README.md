@@ -4,17 +4,17 @@
 
 # CORD
 
-**An open protocol by Hantera · Created by KentPH**
+**An open, vendor-neutral evidence protocol.**
 
-Cord is an open, vendor-neutral protocol draft for creating and independently verifying cryptographic evidence about AI events.
+Cord is an open protocol draft for creating and independently verifying cryptographic evidence about digital and AI-related events.
 
 ## What Core v0.1 does
 
-Cord Core uses a `bundle.json` and a `receipt.json`. The verifier checks the bundle schema, canonical bundle hash, and exact bundle-file hash. Verification is offline.
+Cord Core uses a bundle and a receipt. The verifier checks the bundle schema, canonical bundle hash, and exact bundle-file hash. Verification is offline.
 
 A PASS means the supplied bundle is valid under the supported Core version and its hashes match the supplied receipt. It does **not** prove who created the files, that the declared AI model generated the output, or that the timestamp is trusted. An attacker who can replace both files can create a new matching pair. See the [Security Model](docs/SECURITY-MODEL.md).
 
-> **Status: Experimental draft (v0.1).** Do not use as a production security certification. The specification and reference implementation are being developed and need independent review.
+> **Status: Experimental draft (v0.1).** Do not use as a production security certification. The specification and reference implementation require independent review.
 
 ## Quick start
 
@@ -32,26 +32,21 @@ Verify the evidence package:
 python verifier/verify.py verify bundle.json receipt.json
 ```
 
-The verifier prints JSON. It exits with code `0` on success and `1` on invalid input or a failed check.
-
-Run the automated tests:
+Run automated tests:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-Try the fixed test vector:
-
-```bash
-python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/receipt_valid.json
-```
-
-## Core formats
+## Documentation
 
 - [Cord Core Formats v0.1](spec/FORMATS.md)
 - [Project Charter](docs/PROJECT-CHARTER.md)
 - [Completion Roadmap](docs/ROADMAP.md)
 - [Security Model](docs/SECURITY-MODEL.md)
+- [Master Architecture](docs/MASTER-ARCHITECTURE.md)
+- [Legal, Privacy and Security Requirements](docs/LEGAL-AND-PRIVACY-REQUIREMENTS.md)
+- [Repository Change Plan](docs/REPOSITORY-CHANGE-PLAN.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
 
@@ -61,48 +56,9 @@ python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/rec
 - Offline verification; no Cord account or server required.
 - Strict schemas and deterministic test vectors.
 - Vendor-neutral integrations.
-- Signatures and trusted timestamps are separate future extensions, not implied by Core PASS.
-
-## Contributing
-
-We welcome protocol reviews, independent implementations, verifier improvements, test vectors, SDKs, and integration examples. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and open an issue before proposing significant protocol changes.
-
-## Support
-
-Voluntary donations support development and do not buy protocol privileges or influence verification results.
-
-**Ethereum (ETH)**
-
-`0x3d6344fc57ba0039429bdf78dd7ca734c42195b9`
-
-**Bitcoin (BTC)**
-
-`bc1q8qtrmfmq53smfhzp8s6p9er080z66zvzae9f38`
+- Signatures and trusted timestamps are separate extensions, not implied by Core PASS.
+- Public repository content must contain only non-sensitive information and synthetic examples.
 
 ## License
 
-Cord is published under the [Apache License 2.0](LICENSE).
-
-## Origin and attribution
-
-**CORD by Hantera — Created by KentPH.**
-
-Cord was initiated by Hantera and KentPH. The protocol is open for everyone to inspect, implement, use, and extend under the project license. Independent implementations and community contributions are welcome.
-
-Project creator: [KentPH / Hantera](https://github.com/Hantera1).
-
-
-## Python integration
-
-A minimal helper is available at `sdk/python/cord_sdk.py`; see
-`examples/python_quickstart.py`. Install the signing dependency with
-`python -m pip install -r requirements.txt`. The signed-receipt and
-event-chain extensions are experimental. A chain requires an externally
-retained checkpoint to detect full-chain replacement.
-
-## Experimental extensions
-
-- [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
-- [Receipt event chain](spec/EVENT-CHAIN.md)
-
-These extensions do not make Cord a production security certification.
+Cord Core is published under the [Apache License 2.0](LICENSE). Commercial services, proprietary modules, templates, data products, trademarks and support may be offered under separate terms only where the relevant rights are owned or validly licensed. Existing Apache 2.0 permissions are not withdrawn or retroactively restricted.
