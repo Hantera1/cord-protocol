@@ -1,0 +1,34 @@
+{
+  "profile_id": "org.cordprotocol.profile.clock",
+  "profile_version": "0.1.0",
+  "time_claims": [
+    {
+      "claim_id": "time-claim-001",
+      "event_time": "2026-11-22T10:00:00Z",
+      "source_ref": "demo-application-clock",
+      "assurance": "producer_declared",
+      "notes": "Demonstration only; not trusted time."
+    }
+  ],
+  "observations": [
+    {
+      "observation_id": "clock-obs-001",
+      "observed_at": "2026-11-22T10:00:01Z",
+      "clock_ref": "demo-host-clock",
+      "protocol": "NTP",
+      "sync_state": "unknown",
+      "offset_ms": 0,
+      "uncertainty_ms": 1000,
+      "source_authenticated": false
+    }
+  ],
+  "timestamp_tokens": [],
+  "event_orders": [
+    {
+      "source_ref": "demo-source",
+      "sequence": 1,
+      "ordering_basis": "per_source_sequence",
+      "clock_domain_ref": "demo-process-session"
+    }
+  ]
+}

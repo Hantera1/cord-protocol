@@ -1,0 +1,573 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cordprotocol.org/schemas/luxury-asset-evidence-0.1.0.schema.json",
+  "title": "CORD Luxury Asset Evidence v0.1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "profile_version",
+    "asset",
+    "evidence"
+  ],
+  "properties": {
+    "profile_id": {
+      "const": "org.cordprotocol.profile.luxury-asset"
+    },
+    "profile_version": {
+      "const": "0.1.0"
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "asset_id",
+        "category",
+        "description"
+      ],
+      "properties": {
+        "asset_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "category": {
+          "enum": [
+            "watch",
+            "clock",
+            "jewellery",
+            "diamond",
+            "gemstone",
+            "precious_metal",
+            "art",
+            "antique",
+            "collectible",
+            "vehicle",
+            "other"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "brand": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "reference": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "serial_number": {
+          "type": "string",
+          "maxLength": 256
+        },
+        "serial_number_visibility": {
+          "enum": [
+            "restricted",
+            "private",
+            "public"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidence_id",
+          "evidence_type",
+          "claim_status",
+          "issuer"
+        ],
+        "properties": {
+          "evidence_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "evidence_type": {
+            "enum": [
+              "AssetRegistrationEvidence",
+              "AuthenticityEvidence",
+              "ConditionEvidence",
+              "ComponentEvidence",
+              "ServiceEvidence",
+              "OwnershipEvidence",
+              "TransferEvidence",
+              "ValuationEvidence",
+              "CustodyEvidence",
+              "ClockEvidence",
+              "DisputeEvidence"
+            ]
+          },
+          "claim_status": {
+            "enum": [
+              "asserted",
+              "corroborated",
+              "disputed",
+              "withdrawn",
+              "expired",
+              "unknown"
+            ]
+          },
+          "issuer": {
+            "$ref": "#/$defs/issuer"
+          },
+          "registration_status": {
+            "enum": [
+              "created",
+              "updated",
+              "corrected"
+            ]
+          },
+          "assessment": {
+            "enum": [
+              "authentic",
+              "not_authentic",
+              "inconclusive",
+              "not_assessed"
+            ]
+          },
+          "examined_parts": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "not_examined": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string"
+            }
+          },
+          "condition_grade": {
+            "enum": [
+              "new",
+              "excellent",
+              "very_good",
+              "good",
+              "fair",
+              "poor",
+              "unknown"
+            ]
+          },
+          "findings": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "string"
+            }
+          },
+          "components": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "part",
+                "status"
+              ],
+              "properties": {
+                "part": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "status": {
+                  "enum": [
+                    "original_claimed",
+                    "replaced",
+                    "aftermarket",
+                    "unknown",
+                    "not_present"
+                  ]
+                },
+                "notes": {
+                  "type": "string",
+                  "maxLength": 1024
+                }
+              }
+            }
+          },
+          "service_type": {
+            "enum": [
+              "inspection",
+              "maintenance",
+              "repair",
+              "restoration",
+              "other"
+            ]
+          },
+          "provider_ref": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "parts_changed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assertion": {
+            "enum": [
+              "claims_owner",
+              "claims_authority_to_transfer",
+              "no_longer_claims_owner"
+            ]
+          },
+          "party_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "legal_effect_note": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "event_status": {
+            "enum": [
+              "proposed",
+              "completed",
+              "cancelled",
+              "disputed"
+            ]
+          },
+          "from_party_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "to_party_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "attestations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "currency": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$"
+          },
+          "valuation_date": {
+            "type": "string",
+            "format": "date"
+          },
+          "valuation_basis": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "custody_status": {
+            "enum": [
+              "received",
+              "held",
+              "released",
+              "lost",
+              "unknown"
+            ]
+          },
+          "custodian_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "time_assurance": {
+            "enum": [
+              "producer_declared",
+              "signed_receipt",
+              "independent_timestamp_reference",
+              "event_sequence"
+            ]
+          },
+          "reference": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "dispute_status": {
+            "enum": [
+              "opened",
+              "response_added",
+              "resolved",
+              "unresolved",
+              "withdrawn"
+            ]
+          },
+          "subject": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "AssetRegistrationEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "registration_status"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "AuthenticityEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "assessment"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "ConditionEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "condition_grade"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "ComponentEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "components"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "ServiceEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "service_type"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "OwnershipEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "assertion",
+                "party_ref"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "TransferEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "event_status",
+                "from_party_ref",
+                "to_party_ref"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "ValuationEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "amount",
+                "currency",
+                "valuation_date",
+                "valuation_basis"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "CustodyEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "custody_status",
+                "custodian_ref"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "ClockEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "time_assurance"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "evidence_type": {
+                  "const": "DisputeEvidence"
+                }
+              },
+              "required": [
+                "evidence_type"
+              ]
+            },
+            "then": {
+              "required": [
+                "dispute_status",
+                "subject"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "issuer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issuer_ref",
+        "issuer_role",
+        "method",
+        "scope",
+        "observed_at"
+      ],
+      "properties": {
+        "issuer_ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "issuer_role": {
+          "enum": [
+            "manufacturer",
+            "authorized_service",
+            "independent_examiner",
+            "appraiser",
+            "seller",
+            "owner",
+            "custodian",
+            "transferee",
+            "registrar",
+            "other"
+          ]
+        },
+        "method": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "observed_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "supporting_digests": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        }
+      }
+    }
+  }
+}

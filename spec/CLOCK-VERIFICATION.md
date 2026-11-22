@@ -1,6 +1,6 @@
 # CORD Clock Verification Profile (v0.1)
 
-**Status: proposed application profile — draft; not an implemented or production-ready trusted time service.**
+**Status: draft application profile; initial reference schema and consistency validator are implemented on PR #13. Not a trusted time service.**
 
 This profile defines how CORD evidence packages may carry and verify evidence about time sources, timestamp claims, clock synchronization, and event ordering. It is designed for use across CORD application profiles, including luxury asset records, financial transactions, AI events, supply chains, real estate records, and digital operations.
 
@@ -32,7 +32,7 @@ A profile-aware implementation MAY record and verify:
 
 ## 3. Evidence concepts
 
-The following logical evidence objects are proposed. Their exact normative schemas and test vectors are future implementation work.
+The following logical evidence objects are represented in the draft reference schema at `profiles/clock/evidence.schema.json`; schema conformance and semantic checks do not provide cryptographic timestamp validation.
 
 | Evidence type | Purpose |
 |---|---|

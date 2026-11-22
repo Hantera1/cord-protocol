@@ -1,0 +1,25 @@
+{
+  "manifest_version": "0.1",
+  "profile_id": "org.cordprotocol.profile.luxury-asset",
+  "profile_version": "0.1.0",
+  "profile_name": "CORD Luxury Asset Verification",
+  "profile_status": "draft",
+  "core_compatibility": {
+    "min_version": "0.1",
+    "max_version": "0.1"
+  },
+  "specification_uri": "https://cordprotocol.org/spec/LUXURY-ASSET-VERIFICATION.md",
+  "evidence_schema_uri": "https://cordprotocol.org/schemas/luxury-asset-evidence-0.1.0.schema.json",
+  "evidence_media_type": "application/json",
+  "verification": {
+    "required_checks": [
+      "core_integrity",
+      "profile_package_integrity",
+      "manifest_validation",
+      "profile_schema_validation"
+    ],
+    "result_model": "CORD-PROFILE-RESULT-0.1"
+  },
+  "publisher": "CORD Protocol (draft; this field is not an authenticated identity)",
+  "description": "Evidence records for individually identifiable high-value physical assets. Validation does not establish physical authenticity, ownership, custody, or valuation truth."
+}

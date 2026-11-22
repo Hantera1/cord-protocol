@@ -1,0 +1,17 @@
+{
+  "registry_version": "0.1",
+  "profiles": {
+    "org.cordprotocol.profile.luxury-asset": {
+      "0.1.0": {
+        "manifest_path": "luxury-asset/manifest.json",
+        "evidence_schema_path": "luxury-asset/evidence.schema.json"
+      }
+    },
+    "org.cordprotocol.profile.clock": {
+      "0.1.0": {
+        "manifest_path": "clock/manifest.json",
+        "evidence_schema_path": "clock/evidence.schema.json"
+      }
+    }
+  }
+}
