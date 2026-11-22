@@ -20,7 +20,7 @@ NOW = "2026-11-22T10:00:05Z"
 
 def write_json(path: Path, value: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\\n", encoding="utf-8")
+    path.write_text(json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def build(profile_name: str, output_root: Path) -> Path:
