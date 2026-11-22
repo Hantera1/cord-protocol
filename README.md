@@ -109,6 +109,7 @@ retained checkpoint to detect full-chain replacement.
 
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
 - [Offline Trust Store v0.1](spec/TRUST-STORE.md)
+- [RFC 3161 Trusted Timestamp Profile (experimental)](spec/RFC3161-TIMESTAMP.md)
 - [Trust Store JSON Schema](schemas/trust-store-0.1.schema.json)
 - [Receipt event chain](spec/EVENT-CHAIN.md)
 
