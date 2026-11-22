@@ -5,7 +5,7 @@ export const MAX_FILE_BYTES = 1_048_576;
 const BUNDLE_FIELDS = ["input_hash", "model_id", "output_hash", "policy_id", "spec_version", "timestamp"];
 const RECEIPT_FIELDS = ["bundle_file_hash", "bundle_hash", "created_at", "spec_version"];
 const HASH_RE = /^[0-9a-f]{64}$/;
-const TIMESTAMP_RE = /^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$/;
+const TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
 
 export class CordValidationError extends Error {
   constructor(message) {
@@ -17,7 +17,7 @@ export class CordValidationError extends Error {
 function parseJsonStrict(text, label) {
   let i = 0;
   const fail = (message) => { throw new CordValidationError(`${label}: ${message} at offset ${i}`); };
-  const ws = () => { while (i < text.length && /[\\t\\n\\r ]/.test(text[i])) i++; };
+  const ws = () => { while (i < text.length && /[\t\n\r ]/.test(text[i])) i++; };
 
   function string() {
     const start = i++;
@@ -38,7 +38,7 @@ function parseJsonStrict(text, label) {
           i += 5;
           continue;
         }
-        if (!/["\\\\/bfnrt]/.test(e)) fail("invalid escape");
+        if (!['"', "\\\\", "/", "b", "f", "n", "r", "t"].includes(e)) fail("invalid escape");
       }
       i++;
     }
@@ -86,7 +86,7 @@ function parseJsonStrict(text, label) {
     for (const literal of ["true", "false", "null"]) {
       if (rest.startsWith(literal)) { i += literal.length; return JSON.parse(literal); }
     }
-    const match = /^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?/.exec(rest);
+    const match = /^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(rest);
     if (match) {
       i += match[0].length;
       const n = Number(match[0]);
@@ -133,7 +133,15 @@ function validateFields(obj, expected, label) {
 }
 
 function validateTimestamp(value, field) {
-  if (!TIMESTAMP_RE.test(value) || !Number.isFinite(Date.parse(value))) {
+  const match = TIMESTAMP_RE.exec(value);
+  if (!match) throw new CordValidationError(`${field} must be a valid RFC 3339 UTC timestamp ending in Z`);
+  const [year, month, day, hour, minute, second] = match.slice(1, 7).map(Number);
+  const date = new Date(0);
+  date.setUTCFullYear(year, month - 1, day);
+  date.setUTCHours(hour, minute, second, 0);
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 ||
+      date.getUTCDate() !== day || date.getUTCHours() !== hour ||
+      date.getUTCMinutes() !== minute || date.getUTCSeconds() !== second) {
     throw new CordValidationError(`${field} must be a valid RFC 3339 UTC timestamp ending in Z`);
   }
 }
