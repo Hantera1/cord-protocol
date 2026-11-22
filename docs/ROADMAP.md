@@ -38,8 +38,9 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 
 - [x] Specify an experimental Ed25519 signed-receipt profile and key identifier.
 - [x] Draft an offline Trust Store v0.1 format and JSON Schema for pinned public keys and deployment-defined roles.
-- [ ] Implement strict trust-store parsing, duplicate key-ID rejection, public-key decoding, and policy evaluation.
-- [ ] Define trusted-time-backed historical key validity and revocation semantics.
+- [x] Implement strict offline trust-store parsing, raw-byte SHA-256 pinning, duplicate key-ID rejection, strict Ed25519 public-key decoding, and role/lifecycle policy evaluation (experimental Python reference).
+- [x] Define fail-closed historical key validity and revocation results; without independently validated trusted time, return `INDETERMINATE`.
+- [ ] Validate trusted timestamp evidence (RFC 3161 token and TSA certificate path); the current resolver accepts only a timestamp already validated by its caller.
 - [ ] Specify and implement trusted timestamp evidence (RFC 3161 token validation and trust anchors remain pending).
 - [ ] Specify key rotation, revocation, and algorithm agility.
 - [ ] Define provenance and policy metadata extensions.
