@@ -4,89 +4,73 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 
 ## Stage 0 — Establish a trustworthy baseline
 
-- [ ] Inventory every current format, example, verifier, and test vector.
-- [ ] Resolve field-name mismatches between the specification, verifier, and fixtures.
-- [ ] Define exact canonical JSON behavior, including Unicode, numbers, duplicate keys, and invalid values.
-- [ ] Define strict bundle and receipt schemas and timestamp rules.
-- [ ] Replace placeholder hashes with independently reproducible test vectors.
-- [ ] Add positive and negative verifier tests.
-- [ ] Publish the security model and limitations.
+- [x] Inventory Core formats, verifier, examples, and test vectors.
+- [x] Define exact canonical JSON behavior and strict Core schemas.
+- [x] Publish deterministic test vectors and positive/negative tests.
+- [x] Publish the security model and limitations.
 
-**Exit criteria:** two independently written implementations produce the same results for every normative test vector.
+**Remaining exit criterion:** an independent implementation outside this repository reproduces the normative vectors and passes adversarial interoperability tests.
 
 ## Stage 1 — Reliable Core implementation
 
-- [x] Harden the Python reference verifier.
-- [x] Provide a command-line interface with machine-readable output and clear exit codes.
-- [ ] Add a bundle/receipt creation example.
-- [x] Add continuous integration for tests (format/lint gate remains pending).
-- [ ] Document reproducible local verification with no network access.
-
-**Exit criteria:** a new developer can create, verify, tamper with, and reject a sample package using the documented commands.
+- [x] Harden the Python reference verifier and CLI.
+- [x] Provide bundle/receipt creation and verification examples.
+- [x] Add continuous integration for Python and TypeScript tests.
+- [x] Document reproducible local verification.
 
 ## Stage 2 — Developer adoption
 
-- [x] Add a minimal Python SDK helper (initial reference; packaging/release still pending).
-- [ ] Publish a JavaScript/TypeScript SDK.
-- [ ] Provide integration examples for common AI application patterns.
+- [x] Add a minimal Python SDK helper.
+- [x] Add an experimental TypeScript Core SDK and Node.js tests.
+- [ ] Publish versioned SDK packages and compatibility guarantees.
+- [ ] Add integration examples for common AI application patterns.
 - [ ] Add a public verifier demo that runs locally in the browser where practical.
-- [ ] Add versioned API and extension documentation.
 
-**Exit criteria:** external developers can integrate Cord without depending on a Cord-hosted service.
+The TypeScript SDK accepts parsed objects and exact bundle bytes. A duplicate-key-rejecting JSON parser remains the caller's responsibility at the file boundary.
 
 ## Stage 3 — Trust extensions
 
-- [x] Specify an experimental Ed25519 signed-receipt profile and key identifier.
-- [ ] Specify and implement trusted timestamp evidence (RFC 3161 token validation and trust anchors remain pending).
-- [ ] Specify key rotation, revocation, and algorithm agility.
-- [ ] Define provenance and policy metadata extensions.
-- [ ] Add test vectors and threat analysis for every extension.
-
-**Exit criteria:** extensions are independently verifiable and do not weaken or redefine Core.
+- [x] Specify an experimental Ed25519 signed-receipt profile.
+- [x] Implement signature verification against an externally pinned public key.
+- [x] Implement an experimental receipt hash chain with optional trusted checkpoint.
+- [ ] Specify and implement RFC 3161 timestamp-token verification and trust anchors.
+- [ ] Define key rotation, revocation, algorithm agility, and key custody.
+- [ ] Add test vectors and threat analysis for every trust extension.
 
 ## Stage 4 — Optional services and sustainability
 
 - [ ] Offer a hosted verification API as a convenience, while preserving offline verification.
-- [ ] Consider managed evidence storage with clear retention, export, and deletion controls.
-- [ ] Consider organization audit dashboards and team administration.
-- [ ] Add transparent donation and sponsorship information.
+- [ ] Define authentication, rate limits, abuse controls, privacy, retention, export, and deletion before accepting customer evidence.
+- [ ] Deploy with infrastructure-as-code, monitoring, backups, incident response, and documented recovery.
+- [ ] Consider managed evidence storage and organization audit dashboards.
 - [ ] Consider paid support or service-level agreements for businesses.
 
-**Exit criteria:** paid services add convenience and operations, never exclusive access to the protocol or the ability to validate Core evidence.
+## Architecture decision
 
-## What we should not build first
+Cord Core remains provider-neutral and offline-first. A hosted service is optional and must never be required to verify evidence. The first hosted deployment should be stateless and replaceable; evidence files should remain exportable and customer-controlled. Private signing keys must not be stored in application configuration or source control. Use a managed KMS/HSM when signing service keys are introduced. Trusted timestamps must be independently verifiable from RFC 3161 tokens and configured trust anchors.
 
-- A proprietary token or blockchain requirement.
-- A mandatory Cord account or cloud dependency.
-- A large plugin marketplace before the Core is stable.
-- Claims that a hash proves truth, authorship, model identity, or time.
-- Multiple SDKs before one reference implementation and the test suite are reliable.
+Do not introduce a proprietary token, mandatory blockchain, mandatory account, or cloud dependency into Core.
 
 ## Release gates
 
-A release should identify:
+A release must identify:
 - protocol version and status (draft, candidate, stable);
-- supported verifier versions;
-- test-vector version;
+- supported verifier and SDK versions;
+- test-vector version and interoperability results;
 - known limitations and security considerations;
-- backward-compatibility expectations.
+- backward-compatibility expectations;
+- independent review status.
 
+## Current status
 
-## Current implementation status (2026-11-22)
+Core v0.1, Python reference verifier, Python helper, experimental TypeScript verifier helper, Ed25519 receipt signatures, and experimental receipt chain are implemented in the repository. CI covers Python and TypeScript. Cord remains an experimental draft, not a production security certification.
 
-Implemented on the work branch:
-- Strict Python Core verifier and receipt creation CLI.
-- Deterministic Core v0.1 specification and fixed test vector.
-- GitHub Actions test workflow.
-- Experimental Ed25519 detached receipt signatures verified against an externally trusted/pinned public key.
-- Experimental receipt hash-chain helper with optional externally trusted head checkpoint.
-- Minimal Python SDK helper and end-to-end example.
-
-Not yet production-ready:
-- No independent second-language implementation or interoperability vectors.
-- No RFC 3161 timestamp-token verification or configured trust anchors.
-- No key registry, rotation, revocation, or hardware-backed key custody.
-- No hosted API, authentication, managed storage, or operational deployment.
-- No independent security audit or formal protocol review.
+Production blockers:
+- independent third-party implementation and formal protocol review;
+- duplicate-key-rejecting TypeScript JSON file parser and cross-language canonicalization vectors;
+- RFC 3161 token validation and trusted TSA roots;
+- key registry, rotation, revocation, and hardware-backed custody;
+- threat-model review, penetration testing, and operational controls;
+- hosted API, authentication, privacy/retention policies, and monitored deployment.
 
 Do not mark Cord stable or claim regulatory compliance until these release gates are met.
