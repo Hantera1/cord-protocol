@@ -5,7 +5,7 @@ export const MAX_FILE_BYTES = 1_048_576;
 const BUNDLE_FIELDS = ["input_hash", "model_id", "output_hash", "policy_id", "spec_version", "timestamp"];
 const RECEIPT_FIELDS = ["bundle_file_hash", "bundle_hash", "created_at", "spec_version"];
 const HASH_RE = /^[0-9a-f]{64}$/;
-const TIMESTAMP_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+const TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?Z$/;
 
 export class CordValidationError extends Error {
   constructor(message) {
@@ -187,7 +187,7 @@ export function createReceiptBytes(bundleBytes, createdAt) {
     bundle_file_hash: sha256(raw),
     created_at: createdAt,
   };
-  return Buffer.from(JSON.stringify(receipt, null, 2) + "\\n", "utf8");
+  return Buffer.from(JSON.stringify(receipt, null, 2) + "\n", "utf8");
 }
 
 function sha256(bytes) {
