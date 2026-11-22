@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import hashlib
 import os
 import re
 import shutil
@@ -27,6 +28,11 @@ def _signature_bytes(envelope: dict[str, Any]) -> bytes:
         raise CordValidationError("signature envelope must be an object")
     if envelope.get("spec_version") != "0.1" or envelope.get("alg") != "Ed25519":
         raise CordValidationError("timestamp profile supports only Signed Receipt v0.1 Ed25519")
+    if set(envelope) != {"spec_version", "alg", "key_id", "signature"}:
+        raise CordValidationError("signature envelope must contain exactly spec_version, alg, key_id, and signature")
+    key_id = envelope.get("key_id")
+    if not isinstance(key_id, str) or not key_id or key_id.strip() != key_id:
+        raise CordValidationError("signature envelope.key_id must be a non-empty trimmed string")
     encoded = envelope.get("signature")
     if not isinstance(encoded, str) or not encoded or encoded.strip() != encoded:
         raise CordValidationError("signature envelope.signature must be trimmed Base64")
@@ -123,12 +129,19 @@ def verify_receipt_signature_timestamp(
         match = TIME_RE.search(decoded.stdout)
         if not match:
             raise CordValidationError("OpenSSL output did not contain an RFC 3161 generation time")
-        try:
-            generation_time = datetime.strptime(
-                match.group(1), "%b %d %H:%M:%S %Y GMT"
-            ).replace(tzinfo=timezone.utc)
-        except ValueError as exc:
-            raise CordValidationError("OpenSSL returned an unsupported timestamp format") from exc
+        hash_match = HASH_RE.search(decoded.stdout)
+        if not hash_match or hash_match.group(1).lower() not in ALLOWED_IMPRINT_HASHES:
+            raise CordValidationError("RFC 3161 message-imprint hash must be SHA-256, SHA-384, or SHA-512")
+        timestamp_text = match.group(1)
+        generation_time = None
+        for timestamp_format in ("%b %d %H:%M:%S %Y GMT", "%b %d %H:%M:%S.%f %Y GMT"):
+            try:
+                generation_time = datetime.strptime(timestamp_text, timestamp_format).replace(tzinfo=timezone.utc)
+                break
+            except ValueError:
+                continue
+        if generation_time is None:
+            raise CordValidationError("OpenSSL returned an unsupported timestamp format")
 
         verify_args = [
             executable, "ts", "-verify", "-token_in", "-in", str(token),
@@ -149,7 +162,10 @@ def verify_receipt_signature_timestamp(
     return {
         "status": "PASS",
         "timestamp_profile": "CORD-RFC3161-ED25519-0.1",
-        "generation_time": generation_time.isoformat().replace("+00:00", "Z"),
+        "generation_time": generation_time.isoformat(timespec="microseconds" if generation_time.microsecond else "seconds").replace("+00:00", "Z"),
+        "message_imprint_hash": hash_match.group(1).lower(),
+        "tsa_trust_anchor_sha256": hashlib.sha256(ca.read_bytes()).hexdigest(),
+        "tsa_crl_sha256": hashlib.sha256(crl.read_bytes()).hexdigest() if crl else None,
         "message_imprint": "PASS",
         "cms_signature": "PASS",
         "tsa_certificate_path": "PASS",
@@ -169,4 +185,51 @@ def verify_receipt_signature_timestamp(
             "This does not prove civil identity, organizational authority, or truth of receipt claims.",
             "The caller must separately verify the Ed25519 receipt signature and apply CORD Trust Store policy.",
         ],
+    }
+
+ 
+def verify_signed_receipt_with_timestamp(
+    receipt: dict[str, Any],
+    signature_envelope: dict[str, Any],
+    trust_store: dict[str, Any],
+    token_der: bytes,
+    tsa_ca_file: str | Path,
+    required_role: str | None = None,
+    untrusted_file: str | Path | None = None,
+    *,
+    crl_file: str | Path | None = None,
+    require_crl: bool = False,
+    openssl_binary: str = "openssl",
+    timeout_seconds: int = 15,
+) -> dict[str, Any]:
+    """Verify TSA evidence, then apply the pinned CORD Trust Store policy."""
+    timestamp_result = verify_receipt_signature_timestamp(
+        token_der,
+        signature_envelope,
+        tsa_ca_file,
+        untrusted_file,
+        crl_file=crl_file,
+        require_crl=require_crl,
+        openssl_binary=openssl_binary,
+        timeout_seconds=timeout_seconds,
+    )
+    from verifier.trust_store import verify_signed_receipt_with_store
+
+    trust_result = verify_signed_receipt_with_store(
+        receipt,
+        signature_envelope,
+        trust_store,
+        required_role=required_role,
+        trusted_signature_time=timestamp_result["generation_time"],
+    )
+    passed = timestamp_result["status"] == "PASS" and trust_result["status"] == "PASS"
+    return {
+        "status": "PASS" if passed else "FAIL",
+        "timestamp": timestamp_result,
+        "trust": trust_result,
+        "meaning": (
+            "The TSA token and receipt signature both verified, and the signing key passed the configured Trust Store policy."
+            if passed else
+            "One or more timestamp, signature, key, role, or historical validity checks did not pass."
+        ),
     }
