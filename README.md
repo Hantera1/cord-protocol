@@ -52,6 +52,7 @@ python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/rec
 - [Project Charter](docs/PROJECT-CHARTER.md)
 - [Completion Roadmap](docs/ROADMAP.md)
 - [Security Model](docs/SECURITY-MODEL.md)
+- [Luxury Asset Verification Profile (proposed)](spec/LUXURY-ASSET-VERIFICATION.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
 
