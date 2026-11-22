@@ -50,7 +50,7 @@ function timestamp(value: string, field: string): void {
 }
 export function validateBundle(bundle: unknown): asserts bundle is CordBundle {
   exactStringObject(bundle, BUNDLE_FIELDS, "bundle");
-  const b = bundle as CordBundle;
+  const b = bundle as unknown as CordBundle;
   if (b.spec_version !== "0.1") throw new CordValidationError("unsupported bundle spec_version");
   for (const field of ["model_id","policy_id"] as const)
     if (!b[field] || b[field].trim() !== b[field]) throw new CordValidationError("bundle." + field + " must be non-empty and trimmed");
@@ -60,15 +60,15 @@ export function validateBundle(bundle: unknown): asserts bundle is CordBundle {
 }
 export function validateReceipt(receipt: unknown): asserts receipt is CordReceipt {
   exactStringObject(receipt, RECEIPT_FIELDS, "receipt");
-  const r = receipt as CordReceipt;
+  const r = receipt as unknown as CordReceipt;
   if (r.spec_version !== "0.1") throw new CordValidationError("unsupported receipt spec_version");
   for (const field of ["bundle_hash","bundle_file_hash"] as const)
     if (!HASH.test(r[field])) throw new CordValidationError("receipt." + field + " must be lowercase SHA-256 hex");
   timestamp(r.created_at, "receipt.created_at");
 }
-/** CORD-CJSON-1 for Core v0.1 fixed string-only objects. */
-export function canonicalCoreJson(value: Record<string,string>): Uint8Array {
-  return new TextEncoder().encode(JSON.stringify(Object.fromEntries(Object.keys(value).sort().map(k => [k,value[k]]))));
+/** CORD-CJSON-1 for the fixed Core v0.1 string-only objects. */
+export function canonicalCoreJson(value: CordBundle | CordReceipt): Uint8Array {
+  return new TextEncoder().encode(JSON.stringify(Object.fromEntries(Object.keys(value).sort().map(k => [k,(value as unknown as Record<string,string>)[k]]))));
 }
 /** Verify already-parsed JSON plus the exact original bundle file bytes. */
 export function verifyCore(bundle: unknown, receipt: unknown, bundleFileBytes: Uint8Array) {
