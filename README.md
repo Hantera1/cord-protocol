@@ -34,6 +34,11 @@ Try the fixed test vector:
 python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/receipt_valid.json
 ```
 
+## Languages
+
+- [العربية — التوثيق باللغة العربية](README.ar.md)
+- [English — original documentation](README.md)
+
 ## Core formats and governance
 
 - [Cord Core Formats v0.1](spec/FORMATS.md)
