@@ -43,15 +43,15 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
                 raise RuntimeError(f"OpenSSL fixture command failed: {result.stderr}")
             return result
 
-        cls.run = staticmethod(run)
-        cls.run([
+        cls.openssl = staticmethod(run)
+        cls.openssl([
             "req", "-x509", "-newkey", "rsa:2048", "-nodes",
             "-keyout", str(cls.ca_key), "-out", str(cls.ca),
             "-subj", "/CN=CORD RFC3161 Test Root", "-days", "2",
             "-addext", "basicConstraints=critical,CA:TRUE",
             "-addext", "keyUsage=critical,keyCertSign,cRLSign",
         ])
-        cls.run([
+        cls.openssl([
             "req", "-newkey", "rsa:2048", "-nodes",
             "-keyout", str(cls.tsa_key), "-out", str(cls.tsa_csr),
             "-subj", "/CN=CORD RFC3161 Test TSA",
@@ -64,7 +64,7 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
             "authorityKeyIdentifier=keyid,issuer\n",
             encoding="ascii",
         )
-        cls.run([
+        cls.openssl([
             "x509", "-req", "-in", str(cls.tsa_csr),
             "-CA", str(cls.ca), "-CAkey", str(cls.ca_key),
             "-CAcreateserial", "-out", str(cls.tsa_cert),
@@ -92,11 +92,11 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
             encoding="ascii",
         )
         (cls.root / "tsa.serial").write_text("01\n", encoding="ascii")
-        cls.run([
+        cls.openssl([
             "ts", "-query", "-data", str(cls.data), "-sha256",
             "-cert", "-out", str(cls.root / "request.tsq"),
         ])
-        cls.run([
+        cls.openssl([
             "ts", "-reply", "-queryfile", str(cls.root / "request.tsq"),
             "-config", str(cls.root / "tsa.cnf"),
             "-token_out", "-out", str(cls.token),
@@ -104,7 +104,7 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
         # Independent trust anchor used to prove the verifier rejects an
         # otherwise well-formed token from an untrusted TSA hierarchy.
         cls.other_ca = cls.root / "other-ca.pem"
-        cls.run([
+        cls.openssl([
             "req", "-x509", "-newkey", "rsa:2048", "-nodes",
             "-keyout", str(cls.root / "other-ca.key"), "-out", str(cls.other_ca),
             "-subj", "/CN=Untrusted Test Root", "-days", "2",
