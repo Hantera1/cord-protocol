@@ -78,6 +78,20 @@ The TypeScript SDK accepts parsed objects and exact bundle bytes. A duplicate-ke
 - [ ] Integrate CRM, accounting/invoicing and partner commission reporting.
 - [ ] Run a paid UAE pilot before any exclusivity or master distribution rights.
 
+## Swedish Cord Trade Licensing AB establishment
+
+- [x] Set Swedish lean company direction and Cord brand strategy.
+- [x] Propose 100% subsidiary ownership under Means Zero Holding AB, subject to its actual registration status.
+- [x] Prepare Swedish establishment sequence and draft business purpose.
+- [x] Prepare ownership resolution, formation data sheet and lean budget.
+- [x] Prepare IP asset register for chain-of-title review.
+- [ ] Confirm Means Zero Holding AB registration, shareholding, board and authority.
+- [ ] Confirm final company name and registered office.
+- [ ] Obtain accountant/legal review of group structure, tax, VAT and IP transfer.
+- [ ] Sign incorporation documents and register company.
+- [ ] Open company bank account and accounting system.
+- [ ] Complete IP assignments and brand clearance before commercial license issuance.
+
 ## Stage 5 — Optional services and sustainability
 
 - [ ] Offer a hosted verification API as a convenience, while preserving offline verification.
