@@ -1,0 +1,47 @@
+{
+  "profile_id": "org.cordprotocol.profile.luxury-asset",
+  "profile_version": "0.1.0",
+  "asset": {
+    "asset_id": "cord-demo-watch-0001",
+    "category": "watch",
+    "description": "Example mechanical wristwatch record; not an authentication claim.",
+    "brand": "Example Manufacturer",
+    "model": "Demo Reference",
+    "serial_number_visibility": "restricted"
+  },
+  "evidence": [
+    {
+      "evidence_id": "reg-001",
+      "evidence_type": "AssetRegistrationEvidence",
+      "claim_status": "asserted",
+      "issuer": {
+        "issuer_ref": "demo-registrar",
+        "issuer_role": "registrar",
+        "method": "Visual intake and record creation",
+        "scope": "Description and visible identifiers only",
+        "observed_at": "2026-11-22T10:00:00Z"
+      },
+      "registration_status": "created"
+    },
+    {
+      "evidence_id": "auth-001",
+      "evidence_type": "AuthenticityEvidence",
+      "claim_status": "unknown",
+      "issuer": {
+        "issuer_ref": "demo-examiner",
+        "issuer_role": "independent_examiner",
+        "method": "No physical examination performed; demonstration fixture only",
+        "scope": "No authenticity determination",
+        "observed_at": "2026-11-22T10:00:00Z"
+      },
+      "assessment": "not_assessed",
+      "examined_parts": [],
+      "not_examined": [
+        "movement",
+        "case",
+        "dial",
+        "serial markings"
+      ]
+    }
+  ]
+}
