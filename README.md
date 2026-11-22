@@ -14,31 +14,19 @@ Cord Core uses a `bundle.json` and a `receipt.json`. The verifier checks the bun
 
 A PASS means the supplied bundle is valid under the supported Core version and its hashes match the supplied receipt. It does **not** prove who created the files, that the declared AI model generated the output, or that the timestamp is trusted. An attacker who can replace both files can create a new matching pair. See the [Security Model](docs/SECURITY-MODEL.md).
 
-> **Status: Experimental draft (v0.1).** Do not use as a production security certification. The specification and reference implementation are being developed and need independent review.
+> **Status: Experimental draft (v0.1).** Do not use as a production security certification. Independent implementations and external security review are still required.
 
 ## Quick start
 
-Python 3.10 or later; no third-party packages are required.
-
-Create a receipt for a valid bundle:
+Python 3.10 or later; no third-party packages are required for Core verification.
 
 ```bash
 python verifier/verify.py create bundle.json receipt.json --created-at 2026-03-06T12:00:05Z
-```
-
-Verify the evidence package:
-
-```bash
 python verifier/verify.py verify bundle.json receipt.json
+python -m unittest discover -s tests -v
 ```
 
 The verifier prints JSON. It exits with code `0` on success and `1` on invalid input or a failed check.
-
-Run the automated tests:
-
-```bash
-python -m unittest discover -s tests -v
-```
 
 Try the fixed test vector:
 
@@ -46,7 +34,7 @@ Try the fixed test vector:
 python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/receipt_valid.json
 ```
 
-## Core formats
+## Core formats and governance
 
 - [Cord Core Formats v0.1](spec/FORMATS.md)
 - [Project Charter](docs/PROJECT-CHARTER.md)
@@ -57,11 +45,32 @@ python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/rec
 
 ## Design principles
 
-- Open and implementation-neutral.
+- Open, vendor-neutral, and independently implementable.
 - Offline verification; no Cord account or server required.
 - Strict schemas and deterministic test vectors.
-- Vendor-neutral integrations.
-- Signatures and trusted timestamps are separate future extensions, not implied by Core PASS.
+- Optional trust extensions never redefine Core hash semantics.
+- No claim that hashes alone prove identity, trusted time, truth, or compliance.
+
+## Python integration
+
+A minimal helper is available at `sdk/python/cord_sdk.py`; see `examples/python_quickstart.py`. Install the Ed25519 extension dependency with `python -m pip install -r requirements.txt`.
+
+## TypeScript integration (experimental)
+
+A Node.js 20+ SDK is available in `sdk/typescript`. It verifies parsed Core objects against the exact original bundle bytes. The SDK deliberately requires a duplicate-key-rejecting JSON parser at the file boundary; JavaScript's built-in JSON.parse does not reject duplicate keys.
+
+```bash
+cd sdk/typescript
+npm install
+npm test
+```
+
+## Experimental extensions
+
+- [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
+- [Receipt event chain](spec/EVENT-CHAIN.md)
+
+The signed-receipt and event-chain extensions require externally trusted keys/checkpoints. They do not make Cord a production security certification.
 
 ## Contributing
 
@@ -90,19 +99,3 @@ Cord is published under the [Apache License 2.0](LICENSE).
 Cord was initiated by Hantera and KentPH. The protocol is open for everyone to inspect, implement, use, and extend under the project license. Independent implementations and community contributions are welcome.
 
 Project creator: [KentPH / Hantera](https://github.com/Hantera1).
-
-
-## Python integration
-
-A minimal helper is available at `sdk/python/cord_sdk.py`; see
-`examples/python_quickstart.py`. Install the signing dependency with
-`python -m pip install -r requirements.txt`. The signed-receipt and
-event-chain extensions are experimental. A chain requires an externally
-retained checkpoint to detect full-chain replacement.
-
-## Experimental extensions
-
-- [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
-- [Receipt event chain](spec/EVENT-CHAIN.md)
-
-These extensions do not make Cord a production security certification.
