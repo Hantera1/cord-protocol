@@ -34,7 +34,15 @@ python verifier/verify.py verify bundle.json receipt.json
 
 The verifier prints JSON. It exits with code `0` on success and `1` on invalid input or a failed check.
 
-Build and verify the initial application-profile examples:\n\n```bash\npython examples/build_profile_packages.py --output-dir ./build/profile-packages\npython verifier/profile_engine.py ./build/profile-packages/luxury-asset --registry ./profiles\npython verifier/profile_engine.py ./build/profile-packages/clock --registry ./profiles\n```\n\nRun the automated tests:
+Build and verify the initial application-profile examples:
+
+```bash
+python examples/build_profile_packages.py --output-dir ./build/profile-packages
+python verifier/profile_engine.py ./build/profile-packages/luxury-asset --registry ./profiles
+python verifier/profile_engine.py ./build/profile-packages/clock --registry ./profiles
+```
+
+Run the automated tests:
 
 ```bash
 python -m unittest discover -s tests -v
@@ -57,7 +65,8 @@ python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/rec
 - [Clock Verification Profile (proposed)](spec/CLOCK-VERIFICATION.md)
 - [Application Profile Manifest and Verification Model (proposed)](spec/PROFILE-MANIFEST.md)
 - [Profile Manifest JSON Schema 0.1](schemas/profile-manifest-0.1.schema.json)
-- [Profile Engine — draft implementation](docs/PROFILE-ENGINE.md)\n- [Initial profile package examples](examples/profile-packages/README.md)
+- [Profile Engine — draft implementation](docs/PROFILE-ENGINE.md)
+- [Initial profile package examples](examples/profile-packages/README.md)
 - [Contributing](CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
 
