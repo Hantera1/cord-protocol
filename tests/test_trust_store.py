@@ -57,7 +57,7 @@ class TrustStoreTests(unittest.TestCase):
         result = verify_signed_receipt_with_store(
             RECEIPT, self.envelope, store, required_role="manufacturer"
         )
-        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["status"], "INDETERMINATE")
         self.assertEqual(result["signature_validity"], "PASS")
         self.assertEqual(result["role_authorization"], "PASS")
         self.assertEqual(result["historical_key_validity"], "INDETERMINATE")
