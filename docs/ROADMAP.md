@@ -43,7 +43,6 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 - [x] Specify experimental RFC 3161 timestamp profile binding TSA message imprint to exact Ed25519 signature bytes.
 - [x] Add OpenSSL-backed RFC 3161 token, message-imprint, TSA-chain and timestamping-purpose verification (experimental reference; OCSP/CRL checks remain pending).
 - [ ] Add independently generated interoperability fixtures and TSA revocation validation.
-- [ ] Specify and implement trusted timestamp evidence (RFC 3161 token validation and trust anchors remain pending).
 - [ ] Specify key rotation, revocation, and algorithm agility.
 - [ ] Define provenance and policy metadata extensions.
 - [ ] Add test vectors and threat analysis for every extension.
