@@ -103,3 +103,15 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 - [ ] Complete independent interoperability and security review.
 
 **Status:** profile area documented only. This does not mean watch authentication, legal ownership verification, trusted timestamping, or a production registry has been implemented.
+
+
+## Application portfolio reservation — CORD cross-industry scope
+
+- [x] Record the cross-industry application portfolio and reserved use cases in `spec/APPLICATION-PORTFOLIO.md`.
+- [x] Document the proposed Clock Verification application profile in `spec/CLOCK-VERIFICATION.md`.
+- [x] Document the proposed Luxury Asset Verification application profile in `spec/LUXURY-ASSET-VERIFICATION.md`.
+- [ ] Define normative schemas, manifests, trust policies, privacy rules, and test vectors for each profile before implementation.
+- [ ] Implement and test profile-aware verification, beginning with Clock Verification and Luxury Asset Verification.
+- [ ] Add further profiles for identity/key trust, provenance, AI events/agents, financial transactions, real estate, supply chain, and public-sector evidence as specified in the portfolio.
+
+**Status:** use cases are reserved and profile drafts are documented. This is not a claim that all listed capabilities are implemented, interoperable, certified, or production-ready.
