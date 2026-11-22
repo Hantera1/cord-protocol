@@ -230,4 +230,4 @@ Before this specification is marked implemented, the project MUST:
 8. demonstrate that Core-only verification remains unchanged;
 9. obtain independent implementation and security review.
 
-**Current status:** specification draft only. The existing Python verifier remains a Core v0.1 verifier and does not yet implement this profile-aware processing model.
+**Current status:** the manifest specification and JSON Schema remain draft artifacts. The experimental Profile Engine and the initial Clock/Luxury Asset profile fixtures and validators are implemented on PR #13. Independent interoperability and security review, trust extensions, and release conformance evidence remain outstanding; the existing Core verifier remains unchanged.
