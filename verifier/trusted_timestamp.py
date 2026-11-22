@@ -224,14 +224,24 @@ def verify_signed_receipt_with_timestamp(
         required_role=required_role,
         trusted_signature_time=timestamp_result["generation_time"],
     )
-    passed = timestamp_result["status"] == "PASS" and trust_result["status"] == "PASS"
+    cryptographic_and_key_checks_passed = (
+        timestamp_result["status"] == "PASS" and trust_result["status"] == "PASS"
+    )
+    revocation_checked = timestamp_result["tsa_revocation"] == "PASS"
+    overall_status = (
+        "PASS" if cryptographic_and_key_checks_passed and revocation_checked
+        else "INDETERMINATE" if cryptographic_and_key_checks_passed
+        else "FAIL"
+    )
     return {
-        "status": "PASS" if passed else "FAIL",
+        "status": overall_status,
         "timestamp": timestamp_result,
         "trust": trust_result,
         "meaning": (
-            "The TSA token and receipt signature both verified, and the signing key passed the configured Trust Store policy."
-            if passed else
-            "One or more timestamp, signature, key, role, or historical validity checks did not pass."
+            "The TSA token, receipt signature, signing-key policy, and configured TSA CRL checks all passed."
+            if overall_status == "PASS" else
+            "Cryptographic and signing-key checks passed, but TSA revocation status was not established."
+            if overall_status == "INDETERMINATE" else
+            "One or more timestamp, signature, key, role, or historical validity checks failed."
         ),
     }
