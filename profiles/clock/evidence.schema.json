@@ -1,0 +1,281 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cordprotocol.org/schemas/clock-evidence-0.1.0.schema.json",
+  "title": "CORD Clock Evidence v0.1.0",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "profile_version",
+    "time_claims",
+    "observations",
+    "timestamp_tokens",
+    "event_orders"
+  ],
+  "properties": {
+    "profile_id": {
+      "const": "org.cordprotocol.profile.clock"
+    },
+    "profile_version": {
+      "const": "0.1.0"
+    },
+    "time_claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id",
+          "event_time",
+          "source_ref",
+          "assurance"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "event_time": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "source_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assurance": {
+            "enum": [
+              "producer_declared",
+              "signed_receipt",
+              "external_timestamp_reference"
+            ]
+          },
+          "timestamp_token_ref": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1024
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "assurance": {
+                  "const": "external_timestamp_reference"
+                }
+              },
+              "required": [
+                "assurance"
+              ]
+            },
+            "then": {
+              "required": [
+                "timestamp_token_ref"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "observation_id",
+          "observed_at",
+          "clock_ref",
+          "protocol",
+          "sync_state",
+          "offset_ms",
+          "uncertainty_ms"
+        ],
+        "properties": {
+          "observation_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "observed_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "clock_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "protocol": {
+            "enum": [
+              "NTP",
+              "PTP",
+              "GPS",
+              "LOCAL",
+              "OTHER"
+            ]
+          },
+          "sync_state": {
+            "enum": [
+              "synchronized",
+              "holdover",
+              "unsynchronized",
+              "unknown"
+            ]
+          },
+          "offset_ms": {
+            "type": "number"
+          },
+          "uncertainty_ms": {
+            "type": "number",
+            "minimum": 0
+          },
+          "source_authenticated": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "timestamp_tokens": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "token_id",
+          "format",
+          "token_digest",
+          "message_imprint_algorithm",
+          "message_imprint_digest",
+          "validation_status"
+        ],
+        "properties": {
+          "token_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "format": {
+            "enum": [
+              "RFC3161",
+              "OTHER"
+            ]
+          },
+          "token_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "message_imprint_algorithm": {
+            "enum": [
+              "sha256",
+              "sha384",
+              "sha512"
+            ]
+          },
+          "message_imprint_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]+$"
+          },
+          "validation_status": {
+            "enum": [
+              "not_validated",
+              "invalid",
+              "indeterminate"
+            ]
+          },
+          "tsa_ref": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "policy_oid": {
+            "type": "string",
+            "pattern": "^[0-2](\\.(0|[1-9][0-9]*))+$"
+          },
+          "trust_policy_ref": {
+            "type": "string",
+            "maxLength": 256
+          },
+          "validation_time": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "event_orders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_ref",
+          "sequence",
+          "ordering_basis"
+        ],
+        "properties": {
+          "source_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "ordering_basis": {
+            "enum": [
+              "per_source_sequence",
+              "monotonic_clock",
+              "cord_event_chain",
+              "external_checkpoint"
+            ]
+          },
+          "checkpoint_digest": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "clock_domain_ref": {
+            "type": "string",
+            "maxLength": 256
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "ordering_basis": {
+                  "const": "monotonic_clock"
+                }
+              },
+              "required": [
+                "ordering_basis"
+              ]
+            },
+            "then": {
+              "required": [
+                "clock_domain_ref"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "ordering_basis": {
+                  "const": "external_checkpoint"
+                }
+              },
+              "required": [
+                "ordering_basis"
+              ]
+            },
+            "then": {
+              "required": [
+                "checkpoint_digest"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}
