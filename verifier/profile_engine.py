@@ -29,7 +29,7 @@ PROFILE_RECEIPT_FIELDS = {
     "manifest_file_hash", "evidence_file_hash", "created_at",
 }
 HEX_SHA256 = re.compile(r"^[0-9a-f]{64}$")
-UTC_TIMESTAMP = re.compile(r"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$")
+UTC_TIMESTAMP = re.compile(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}([.][0-9]+)?Z$")
 
 
 class ProfileVerificationError(ValueError):
@@ -76,7 +76,7 @@ def _sha256(raw: bytes) -> str:
 
 
 def _version_tuple(value: str) -> tuple[int, ...]:
-    if not isinstance(value, str) or not re.fullmatch(r"(0|[1-9][0-9]*)(\\.(0|[1-9][0-9]*)){0,2}", value):
+    if not isinstance(value, str) or not re.fullmatch(r"(0|[1-9][0-9]*)([.](0|[1-9][0-9]*)){0,2}", value):
         raise ProfileVerificationError(f"invalid numeric version: {value!r}")
     return tuple(int(part) for part in value.split("."))
 
@@ -131,7 +131,7 @@ def create_profile_receipt(
         "created_at": created_at,
     }
     Path(receipt_path).write_text(
-        json.dumps(receipt, ensure_ascii=False, indent=2) + "\\n",
+        json.dumps(receipt, ensure_ascii=False, indent=2) + chr(10),
         encoding="utf-8",
     )
     return receipt
