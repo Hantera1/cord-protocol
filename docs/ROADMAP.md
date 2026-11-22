@@ -110,8 +110,10 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 - [x] Record the cross-industry application portfolio and reserved use cases in `spec/APPLICATION-PORTFOLIO.md`.
 - [x] Document the proposed Clock Verification application profile in `spec/CLOCK-VERIFICATION.md`.
 - [x] Document the proposed Luxury Asset Verification application profile in `spec/LUXURY-ASSET-VERIFICATION.md`.
-- [ ] Define normative schemas, manifests, trust policies, privacy rules, and test vectors for each profile before implementation.
-- [ ] Implement and test profile-aware verification, beginning with Clock Verification and Luxury Asset Verification.
+- [x] Define draft manifests and evidence schemas for the initial Clock and Luxury Asset profiles.
+- [x] Implement profile-aware verification and profile-specific semantic consistency checks for the initial profiles.
+- [x] Add reproducible sample evidence and end-to-end positive/negative tests for both initial profiles.
+- [ ] Implement RFC 3161 token validation, issuer trust, revocation, and external checkpoint trust as separate trust capabilities.
 - [ ] Add further profiles for identity/key trust, provenance, AI events/agents, financial transactions, real estate, supply chain, and public-sector evidence as specified in the portfolio.
 
 **Status:** use cases are reserved and profile drafts are documented. This is not a claim that all listed capabilities are implemented, interoperable, certified, or production-ready.
@@ -132,9 +134,9 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 
 - [x] Define the proposed CORD application profile manifest and staged verification model in `spec/PROFILE-MANIFEST.md`.
 - [x] Publish the draft JSON Schema at `schemas/profile-manifest-0.1.schema.json`.
-- [ ] Publish immutable manifest/evidence fixtures for Clock Verification and Luxury Asset Verification.
-- [ ] Implement strict manifest parsing, local pinned profile registry, profile receipt validation, and structured result reporting.
-- [ ] Add profile-aware verification without changing Core v0.1 behavior.
+- [x] Publish draft manifest/evidence schemas and fixtures for Clock Verification and Luxury Asset Verification.
+- [x] Implement strict manifest parsing, local pinned profile registry, profile receipt validation, and structured result reporting.
+- [x] Add profile-aware verification without changing Core v0.1 behavior.
 - [ ] Publish conformance vectors and complete independent interoperability and security review.
 
 **Status:** manifest specification and JSON Schema are draft artifacts. The current Python verifier remains Core-only; profile-aware verification is not implemented.
@@ -147,8 +149,9 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 - [x] Resolve exact profile versions through a local pinned registry; reject registry path traversal.
 - [x] Verify profile receipt commitments and validate profile evidence against pinned schemas.
 - [x] Add CLI documentation and positive/negative unit tests.
-- [ ] Run and record the full automated test suite in CI before merge.
-- [ ] Add immutable manifests and evidence schemas for the initial Clock and Luxury Asset profiles.
-- [ ] Implement profile-specific semantic validators, trust extensions, and independent interoperability tests.
+- [ ] Run and record the full automated test suite in CI after the latest profile commits and before merge.
+- [x] Add draft manifests, evidence schemas, local registry entries, and reproducible examples for Clock and Luxury Asset.
+- [x] Implement initial profile-specific semantic consistency validators.
+- [ ] Implement cryptographic trust extensions and complete independent interoperability/security review.
 
-**Status:** implementation is on pull request #13 as an experimental draft. It is not merged or production-ready. Core v0.1 verifier semantics remain unchanged.
+**Status:** initial Clock and Luxury Asset draft profiles, local registry entries, schemas, semantic consistency checks, example evidence, package builder, and end-to-end tests are implemented on pull request #13. CI must pass on the latest commit before merge. RFC 3161 cryptographic validation, issuer authentication/authorization, revocation, independent interoperability review, and security audit remain outstanding. Not production-ready. Core v0.1 verifier semantics remain unchanged.
