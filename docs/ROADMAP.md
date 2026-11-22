@@ -61,6 +61,23 @@ The TypeScript SDK accepts parsed objects and exact bundle bytes. A duplicate-ke
 - [ ] Implement signed license certificates, private registry, activation and revocation.
 - [ ] Integrate CRM, invoicing/accounting and reseller commission reconciliation.
 
+## Cord Trade License v1 — commercialisation workstream
+
+- [x] Confirm product direction: new separate licensor, templates + software, UAE first.
+- [x] Define v1 product SKUs and first agreement packs.
+- [x] Define new-company and IP ownership decision gates.
+- [x] Draft commercial license agreement term sheet for counsel.
+- [x] Define UAE go-to-market sequence and partner qualification.
+- [x] Define private license sales ledger and public certificate schema.
+- [ ] Choose incorporation jurisdiction and legal entity name after tax/legal review.
+- [ ] Incorporate the new company and open business banking/accounting.
+- [ ] Execute IP assignments and confirm chain of title.
+- [ ] Clear and file Cord/Cord Trade trademarks in target territories.
+- [ ] Finalise English master agreement and lawyer-reviewed Arabic translation.
+- [ ] Build private license registry, signed certificates, activation and revocation.
+- [ ] Integrate CRM, accounting/invoicing and partner commission reporting.
+- [ ] Run a paid UAE pilot before any exclusivity or master distribution rights.
+
 ## Stage 5 — Optional services and sustainability
 
 - [ ] Offer a hosted verification API as a convenience, while preserving offline verification.
