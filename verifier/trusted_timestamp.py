@@ -7,7 +7,7 @@ from typing import Any
 from verifier.verify import CordValidationError
 
 MAX_TOKEN_BYTES = 1_048_576
-TIME_RE = re.compile(r"^Time stamp:\\s*(.+ GMT)\\s*$", re.MULTILINE)
+TIME_RE = re.compile(r"^Time stamp:\s*(.+ GMT)\s*$", re.MULTILINE)
 
 def _signature_bytes(envelope: dict[str, Any]) -> bytes:
     if not isinstance(envelope, dict) or envelope.get("spec_version") != "0.1" or envelope.get("alg") != "Ed25519":
