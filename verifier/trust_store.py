@@ -199,15 +199,8 @@ def verify_signed_receipt_with_store(
     ):
         temporal_reason = "Key is currently active with no configured time bounds; historical signing time is not established."
 
-    status = "PASS"
-    if record["status"] in {"retired", "revoked"} and trusted_signature_time is None:
-        status = "INDETERMINATE"
-    elif temporal_status == "FAIL":
-        status = "FAIL"
-    elif temporal_status == "INDETERMINATE" and any(
-        field in record for field in ("not_before", "not_after")
-    ):
-        status = "INDETERMINATE"
+    # Never emit an overall PASS while historical key validity is unknown.
+    status = temporal_status
 
     return {
         "status": status,
