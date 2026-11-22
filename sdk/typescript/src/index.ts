@@ -17,7 +17,7 @@ export interface CordReceipt {
 const BUNDLE_FIELDS = ["input_hash","model_id","output_hash","policy_id","spec_version","timestamp"];
 const RECEIPT_FIELDS = ["bundle_file_hash","bundle_hash","created_at","spec_version"];
 const HASH = /^[0-9a-f]{64}$/;
-const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/;
+const TIMESTAMP = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?Z$/;
 
 export class CordValidationError extends Error {
   constructor(message: string) { super(message); this.name = "CordValidationError"; }
@@ -29,15 +29,24 @@ function exactStringObject(value: unknown, fields: string[], label: string): ass
   if (value === null || typeof value !== "object" || Array.isArray(value))
     throw new CordValidationError(label + " must be an object");
   const obj = value as Record<string, unknown>;
+  const expected = [...fields].sort();
   const actual = Object.keys(obj).sort();
-  if (actual.length !== fields.length || actual.some((key, i) => key !== [...fields].sort()[i]))
+  if (actual.length !== expected.length || actual.some((key, i) => key !== expected[i]))
     throw new CordValidationError(label + " has missing or unexpected fields");
   for (const key of fields) if (typeof obj[key] !== "string")
     throw new CordValidationError(label + "." + key + " must be a string");
 }
 function timestamp(value: string, field: string): void {
-  if (!TIMESTAMP.test(value) || !Number.isFinite(Date.parse(value)))
-    throw new CordValidationError(field + " must be a valid RFC 3339 UTC timestamp ending in Z");
+  const match = TIMESTAMP.exec(value);
+  if (!match) throw new CordValidationError(field + " must be a valid RFC 3339 UTC timestamp ending in Z");
+  const [, ys, mos, ds, hs, mis, ss] = match;
+  const year = Number(ys), month = Number(mos), day = Number(ds);
+  const hour = Number(hs), minute = Number(mis), second = Number(ss);
+  const leap = year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  if (month < 1 || month > 12 || day < 1 || day > days[month - 1] ||
+      hour > 23 || minute > 59 || second > 59)
+    throw new CordValidationError(field + " is not a valid RFC 3339 UTC calendar time");
 }
 export function validateBundle(bundle: unknown): asserts bundle is CordBundle {
   exactStringObject(bundle, BUNDLE_FIELDS, "bundle");
