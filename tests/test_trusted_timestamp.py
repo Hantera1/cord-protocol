@@ -17,13 +17,18 @@ class TrustedTimestampTests(unittest.TestCase):
     @patch("verifier.trusted_timestamp.shutil.which",return_value="/usr/bin/openssl")
     @patch("verifier.trusted_timestamp.subprocess.run")
     def test_pass_binds_exact_signature_bytes(self,run,_which):
-        run.side_effect=[CompletedProcess([],0,"Verification: OK",""),
-                         CompletedProcess([],0,"Time stamp: Nov 22 12:34:56 2026 GMT","")]
+        captured = {}
+        def fake_run(args, **kwargs):
+            if "-verify" in args:
+                captured["data"] = Path(args[args.index("-data")+1]).read_bytes()
+                captured["shell"] = kwargs["shell"]
+                return CompletedProcess(args,0,"Verification: OK","")
+            return CompletedProcess(args,0,"Time stamp: Nov 22 12:34:56 2026 GMT","")
+        run.side_effect=fake_run
         result=verify_receipt_signature_timestamp(b"DER",ENV,self.ca)
         self.assertEqual(result["generation_time"],"2026-11-22T12:34:56Z")
-        args=run.call_args_list[0].args[0]
-        self.assertEqual(Path(args[args.index("-data")+1]).read_bytes(),b"s"*64)
-        self.assertFalse(run.call_args_list[0].kwargs["shell"])
+        self.assertEqual(captured["data"],b"s"*64)
+        self.assertFalse(captured["shell"])
 
     @patch("verifier.trusted_timestamp.shutil.which",return_value="/usr/bin/openssl")
     @patch("verifier.trusted_timestamp.subprocess.run")
