@@ -48,6 +48,19 @@ The TypeScript SDK accepts parsed objects and exact bundle bytes. A duplicate-ke
 - [ ] Add signed actor/provider attestations and timestamp-token verification.
 - [ ] Add real payment, e-signature, logistics and assay adapters only after provider and legal review.
 
+## Commercial licensing workstream (design stage)
+
+- [x] Define commercial product boundary and open-source separation.
+- [x] Define business, group, reseller, master-distributor and white-label license types.
+- [x] Define private license registry fields, sales reporting and audit events.
+- [x] Add License Record 0.1 schema and UAE/Arabic market launch brief.
+- [ ] Confirm legal licensor entity and execute contributor IP assignments.
+- [ ] Inventory proprietary templates, brand assets, source code and third-party components.
+- [ ] Complete trademark clearance and filing strategy for Sweden/EU/UAE.
+- [ ] Draft and obtain legal review of English master license and Arabic translation.
+- [ ] Implement signed license certificates, private registry, activation and revocation.
+- [ ] Integrate CRM, invoicing/accounting and reseller commission reconciliation.
+
 ## Stage 5 — Optional services and sustainability
 
 - [ ] Offer a hosted verification API as a convenience, while preserving offline verification.
