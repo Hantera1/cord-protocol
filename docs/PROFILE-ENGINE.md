@@ -15,7 +15,7 @@ The Profile Engine layers application-profile checks on top of the existing Core
 5. checks Core version compatibility;
 6. validates the profile receipt's exact fields and SHA-256 commitments;
 7. validates `profile-evidence.json` against the locally pinned JSON Schema;
-8. returns structured `PASS`, `FAIL`, or `UNSUPPORTED` results.
+8. applies profile-specific semantic consistency checks for the initial Clock and Luxury Asset profiles;\n9. returns structured `PASS`, `FAIL`, or `UNSUPPORTED` results.
 
 The implementation does not fetch remote schemas, trust publisher names, or execute code referenced by a manifest.
 
@@ -79,6 +79,19 @@ python verifier/profile_engine.py ./package --registry ./trusted-profile-registr
 ```
 
 Exit code `0` means the selected checks passed. Any non-PASS result returns exit code `1`.
+
+## Initial profile implementations
+
+The local registry in `profiles/registry.json` pins two draft profile versions:
+
+- `org.cordprotocol.profile.luxury-asset@0.1.0`: asset identity metadata and typed evidence records for registration, authenticity assessment, condition, components, service, ownership assertions, transfers, valuation, custody, clock references, and disputes.
+- `org.cordprotocol.profile.clock@0.1.0`: producer time claims, clock observations, timestamp-token references, and event-order records.
+
+The engine also applies semantic consistency checks. Examples include unique evidence identifiers, examiner-role requirements for substantive authenticity assessments, distinct transfer parties, resolvable external timestamp references, digest-length consistency, and per-source sequence uniqueness.
+
+These are data-consistency rules, not external trust checks. In particular, the Clock profile schema does not permit a token to be marked as successfully validated by this implementation. RFC 3161 signature/path/revocation validation is not implemented. The Luxury Asset profile does not establish that an object is genuine or that an ownership assertion is legally correct.
+
+Build complete examples with `python examples/build_profile_packages.py` and verify them with the CLI. See [profile package examples](../examples/profile-packages/README.md).
 
 ## Current limitations
 
