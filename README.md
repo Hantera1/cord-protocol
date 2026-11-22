@@ -110,8 +110,6 @@ retained checkpoint to detect full-chain replacement.
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
 - [Offline Trust Store v0.1](spec/TRUST-STORE.md)
 - [Trust Store JSON Schema](schemas/trust-store-0.1.schema.json)
-- [Offline Trust Store v0.1](spec/TRUST-STORE.md)
-- [Trust Store JSON Schema](schemas/trust-store-0.1.schema.json)
 - [Receipt event chain](spec/EVENT-CHAIN.md)
 
 ### Verify a signed receipt with a pinned trust store
