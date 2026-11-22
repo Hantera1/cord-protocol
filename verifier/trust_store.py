@@ -51,19 +51,19 @@ def _reject_surrogates(value: Any, path: str = "trust_store") -> None:
             _reject_surrogates(item, f"{path}.{key}")
 
 
-def _read_trust_store(path: str | Path) -> bytes:
+def _read_trust_store(path: str | Path, label: str = "trust store") -> bytes:
     with Path(path).open("rb") as stream:
         raw = stream.read(MAX_TRUST_STORE_BYTES + 1)
     if len(raw) > MAX_TRUST_STORE_BYTES:
         raise CordValidationError(
-            f"trust store exceeds {MAX_TRUST_STORE_BYTES} bytes"
+            f"{label} exceeds {MAX_TRUST_STORE_BYTES} bytes"
         )
     if raw.startswith(b"\xef\xbb\xbf"):
-        raise CordValidationError("trust store must not contain a UTF-8 BOM")
+        raise CordValidationError(f"{label} must not contain a UTF-8 BOM")
     return raw
 
 
-def _parse_trust_store(raw: bytes) -> dict[str, Any]:
+def _parse_trust_store(raw: bytes, label: str = "trust store") -> dict[str, Any]:
     try:
         text = raw.decode("utf-8", errors="strict")
         value = json.loads(
@@ -74,10 +74,13 @@ def _parse_trust_store(raw: bytes) -> dict[str, Any]:
             ),
         )
     except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
-        raise CordValidationError(f"trust store is not valid UTF-8 JSON: {exc}") from exc
+        raise CordValidationError(f"{label} is not valid UTF-8 JSON: {exc}") from exc
     if not isinstance(value, dict):
-        raise CordValidationError("trust store must be a JSON object")
-    _reject_surrogates(value)
+        raise CordValidationError(f"{label} must be a JSON object")
+    try:
+        _reject_surrogates(value)
+    except RecursionError as exc:
+        raise CordValidationError(f"{label} nesting is too deep") from exc
     return value
 
 
