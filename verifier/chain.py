@@ -9,7 +9,6 @@ from __future__ import annotations
 import hashlib
 import json
 import re
-from datetime import datetime
 from typing import Any, Iterable
 
 from verifier.verify import CordValidationError, SPEC_VERSION, _validate_timestamp
@@ -28,10 +27,13 @@ def _digest(value: dict[str, str]) -> str:
 
 
 def create_event(sequence: int, previous_hash: str, receipt_hash: str, created_at: str) -> dict[str, str]:
-    if sequence < 0:
-        raise CordValidationError("sequence must be non-negative")
-    if not HASH_RE.fullmatch(previous_hash) or not HASH_RE.fullmatch(receipt_hash):
-        raise CordValidationError("previous_hash and receipt_hash must be lowercase SHA-256 digests")
+    # bool is a subclass of int in Python; reject it explicitly.
+    if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 0:
+        raise CordValidationError("sequence must be a non-negative integer")
+    if not isinstance(previous_hash, str) or not HASH_RE.fullmatch(previous_hash):
+        raise CordValidationError("previous_hash must be a lowercase SHA-256 digest")
+    if not isinstance(receipt_hash, str) or not HASH_RE.fullmatch(receipt_hash):
+        raise CordValidationError("receipt_hash must be a lowercase SHA-256 digest")
     _validate_timestamp(created_at, "created_at")
     body = {
         "spec_version": SPEC_VERSION,
@@ -44,6 +46,10 @@ def create_event(sequence: int, previous_hash: str, receipt_hash: str, created_a
 
 
 def verify_chain(events: Iterable[dict[str, Any]], expected_head: str | None = None) -> dict[str, Any]:
+    if expected_head is not None and (
+        not isinstance(expected_head, str) or not HASH_RE.fullmatch(expected_head)
+    ):
+        raise CordValidationError("expected_head must be a lowercase SHA-256 digest")
     previous = ZERO_HASH
     count = 0
     for index, event in enumerate(events):

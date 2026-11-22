@@ -29,6 +29,18 @@ class CordChainTests(unittest.TestCase):
         with self.assertRaises(CordValidationError):
             verify_chain([second])
 
+    def test_boolean_sequence_rejected(self):
+        with self.assertRaises(CordValidationError):
+            create_event(True, ZERO_HASH, "a" * 64, "2026-03-06T12:00:00Z")
+
+    def test_non_integer_sequence_rejected(self):
+        with self.assertRaises(CordValidationError):
+            create_event("0", ZERO_HASH, "a" * 64, "2026-03-06T12:00:00Z")
+
+    def test_invalid_expected_head_rejected(self):
+        with self.assertRaises(CordValidationError):
+            verify_chain([], expected_head="not-a-hash")
+
 
 if __name__ == "__main__":
     unittest.main()
