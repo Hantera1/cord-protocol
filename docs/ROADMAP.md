@@ -90,3 +90,16 @@ Not yet production-ready:
 - No independent security audit or formal protocol review.
 
 Do not mark Cord stable or claim regulatory compliance until these release gates are met.
+
+
+## Application profile reservation — Luxury Asset Verification
+
+- [x] Add a proposed application-profile document for high-value physical assets, with luxury watches as the initial use case.
+- [ ] Define normative profile manifest and evidence schemas (AssetIdentity, Authenticity, Condition, Components, Service, Ownership, Transfer, Custody, Valuation, Clock, and Dispute evidence).
+- [ ] Define privacy-preserving identity and disclosure rules.
+- [ ] Define issuer trust, examiner qualification, key lifecycle, and revocation policy.
+- [ ] Integrate independently validated trusted timestamps; do not treat producer-declared time as trusted.
+- [ ] Publish profile test vectors and implement a profile-aware verifier.
+- [ ] Complete independent interoperability and security review.
+
+**Status:** profile area documented only. This does not mean watch authentication, legal ownership verification, trusted timestamping, or a production registry has been implemented.
