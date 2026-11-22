@@ -119,6 +119,7 @@ must come from trusted local configuration, not from the evidence package.
 
 ```python
 import json
+import os
 from verifier.trust_store import (
     load_trust_store,
     verify_signed_receipt_with_store,
@@ -127,7 +128,7 @@ from verifier.trust_store import (
 # Obtain this digest through an independently trusted configuration channel.
 trust_store = load_trust_store(
     "trust-store.json",
-    expected_sha256=TRUST_STORE_SHA256,
+    expected_sha256=os.environ["CORD_TRUST_STORE_SHA256"],
 )
 
 with open("receipt.json", encoding="utf-8") as stream:
@@ -140,8 +141,8 @@ result = verify_signed_receipt_with_store(
     envelope,
     trust_store,
     required_role="manufacturer",
-    # Supply only after independently validating a trusted timestamp.
-    trusted_signature_time=VALIDATED_SIGNATURE_TIME,
+    # Keep None unless a separate trusted-time validator has validated the source.
+    trusted_signature_time=None,
 )
 print(json.dumps(result, indent=2))
 ```
