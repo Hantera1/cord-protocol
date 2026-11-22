@@ -18,7 +18,7 @@ A PASS means the supplied bundle is valid under the supported Core version and i
 
 ## Quick start
 
-Python 3.10 or later; no third-party packages are required.
+Python 3.10 or later for Core; the optional signature and Trust Store extensions require the dependencies in `requirements.txt`.
 
 Create a receipt for a valid bundle:
 
@@ -108,6 +108,50 @@ retained checkpoint to detect full-chain replacement.
 ## Experimental extensions
 
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
+- [Offline Trust Store v0.1](spec/TRUST-STORE.md)
+- [Trust Store JSON Schema](schemas/trust-store-0.1.schema.json)
 - [Receipt event chain](spec/EVENT-CHAIN.md)
 
-These extensions do not make Cord a production security certification.
+### Verify a signed receipt with a pinned trust store
+
+The trust-store resolver is an experimental Python extension. Its SHA-256 pin
+must come from trusted local configuration, not from the evidence package.
+
+```python
+import json
+import os
+from verifier.trust_store import (
+    load_signed_receipt_inputs,
+    load_trust_store,
+    verify_signed_receipt_with_store,
+)
+
+# Obtain this digest through an independently trusted configuration channel.
+trust_store = load_trust_store(
+    "trust-store.json",
+    expected_sha256=os.environ["CORD_TRUST_STORE_SHA256"],
+)
+
+receipt, envelope = load_signed_receipt_inputs(
+    "receipt.json",
+    "receipt.signature.json",
+)
+
+result = verify_signed_receipt_with_store(
+    receipt,
+    envelope,
+    trust_store,
+    required_role="manufacturer",
+    # Keep None unless a separate trusted-time validator has validated the source.
+    trusted_signature_time=None,
+)
+print(json.dumps(result, indent=2))
+```
+
+Without independently validated trusted signing time, historical key validity
+is reported as `INDETERMINATE`; the producer-declared `receipt.created_at`
+is never treated as trusted signing time. The resolver does not validate RFC
+3161 tokens, establish civil identity, or prove the truth of signed claims.
+
+Core remains independent of these extensions. The extensions do not make CORD
+a production security certification.
