@@ -70,6 +70,19 @@ npm install
 npm test
 ```
 
+## Cord Trade (experimental business-evidence extension)
+
+Cord Trade adds detached evidence manifests for physical goods, metals, contracts, payments, delivery and digital commerce without changing Cord Core v0.1.
+
+- [Trade architecture and business model](docs/TRADE-ARCHITECTURE.md)
+- [Integration plan](docs/INTEGRATION-PLAN.md)
+- [Trade Evidence 0.1 JSON Schema](spec/TRADE-EVIDENCE-0.1.schema.json)
+- [Python Trade validator](sdk/python/cord_trade.py)
+- [Synthetic watch sale example](examples/trade_watch_sale.json)
+- [Synthetic silver lot example](examples/trade_silver_lot.json)
+
+Cord Trade is an experimental extension. Its declarations do not prove authenticity, ownership, payment finality, delivery or legal validity without suitable external evidence and trust anchors.
+
 ## Experimental extensions
 
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
