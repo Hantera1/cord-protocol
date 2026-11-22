@@ -139,7 +139,7 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 - [x] Add profile-aware verification without changing Core v0.1 behavior.
 - [ ] Publish conformance vectors and complete independent interoperability and security review.
 
-**Status:** manifest specification and JSON Schema are draft artifacts. The current Python verifier remains Core-only; profile-aware verification is not implemented.
+**Status:** manifest specification and JSON Schema are draft artifacts. The Python Core verifier remains available unchanged; the experimental Profile Engine is implemented on PR #13.
 
 
 ## Profile Engine implementation — experimental v0.1
