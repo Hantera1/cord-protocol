@@ -15,7 +15,8 @@ The Profile Engine layers application-profile checks on top of the existing Core
 5. checks Core version compatibility;
 6. validates the profile receipt's exact fields and SHA-256 commitments;
 7. validates `profile-evidence.json` against the locally pinned JSON Schema;
-8. applies profile-specific semantic consistency checks for the initial Clock and Luxury Asset profiles;\n9. returns structured `PASS`, `FAIL`, or `UNSUPPORTED` results.
+8. applies profile-specific semantic consistency checks for the initial Clock and Luxury Asset profiles;
+9. returns structured `PASS`, `FAIL`, or `UNSUPPORTED` results.
 
 The implementation does not fetch remote schemas, trust publisher names, or execute code referenced by a manifest.
 
@@ -97,7 +98,7 @@ Build complete examples with `python examples/build_profile_packages.py` and ver
 
 - The engine is an experimental draft implementation.
 - The local registry is a trust input; registry authenticity and distribution are deployment responsibilities.
-- Profile semantics beyond JSON Schema are not implemented yet.
+- Profile-specific semantic consistency checks are implemented for the two initial draft profiles; broader trust semantics remain outside this engine.
 - Signature verification, issuer identity, authorization, trusted timestamps, revocation, and external checkpoints are not performed by this engine.
 - The engine does not prove domain truth, physical authenticity, ownership, or regulatory compliance.
 - Independent interoperability and security review have not been completed.
