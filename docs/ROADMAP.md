@@ -40,8 +40,11 @@ This roadmap is a plan, not a claim that the listed capabilities already exist.
 - [x] Draft an offline Trust Store v0.1 format and JSON Schema for pinned public keys and deployment-defined roles.
 - [x] Implement strict offline trust-store parsing, raw-byte SHA-256 pinning, duplicate key-ID rejection, strict Ed25519 public-key decoding, and role/lifecycle policy evaluation (experimental Python reference).
 - [x] Define fail-closed historical key validity and revocation results; without independently validated trusted time, return `INDETERMINATE`.
-- [ ] Validate trusted timestamp evidence (RFC 3161 token and TSA certificate path); the current resolver accepts only a timestamp already validated by its caller.
-- [ ] Specify and implement trusted timestamp evidence (RFC 3161 token validation and trust anchors remain pending).
+- [x] Specify experimental RFC 3161 timestamp profile binding TSA message imprint to exact Ed25519 signature bytes.
+- [x] Add OpenSSL-backed RFC 3161 token, message-imprint, TSA-chain and timestamping-purpose verification (experimental reference; OCSP/CRL checks remain pending).
+- [x] Add independently generated OpenSSL RFC 3161 integration fixtures and negative tests for imprint mismatch and untrusted TSA roots.
+- [x] Bind validated TSA generation time into Trust Store historical key-validity evaluation.
+- [x] Support optional full-chain CRL checks; OCSP and independently sourced historical revocation evidence remain pending.
 - [ ] Specify key rotation, revocation, and algorithm agility.
 - [ ] Define provenance and policy metadata extensions.
 - [ ] Add test vectors and threat analysis for every extension.
@@ -88,7 +91,7 @@ Implemented on the work branch:
 
 Not yet production-ready:
 - No independent second-language implementation or interoperability vectors.
-- No RFC 3161 timestamp-token verification or configured trust anchors.
+- Experimental RFC 3161 timestamp-token verification with operator-configured TSA trust anchors; independent review and production hardening remain pending.
 - No key registry, rotation, revocation, or hardware-backed key custody.
 - No hosted API, authentication, managed storage, or operational deployment.
 - No independent security audit or formal protocol review.

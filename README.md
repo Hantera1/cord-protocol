@@ -109,6 +109,7 @@ retained checkpoint to detect full-chain replacement.
 
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
 - [Offline Trust Store v0.1](spec/TRUST-STORE.md)
+- [RFC 3161 Trusted Timestamp Profile (experimental)](spec/RFC3161-TIMESTAMP.md)
 - [Trust Store JSON Schema](schemas/trust-store-0.1.schema.json)
 - [Receipt event chain](spec/EVENT-CHAIN.md)
 
@@ -155,3 +156,38 @@ is never treated as trusted signing time. The resolver does not validate RFC
 
 Core remains independent of these extensions. The extensions do not make CORD
 a production security certification.
+
+## RFC 3161 trusted timestamp verification (experimental)
+
+The experimental timestamp verifier validates an RFC 3161 DER/CMS token whose message imprint covers the exact raw 64-byte Ed25519 signature from a CORD Signed Receipt v0.1 envelope. It validates the TSA chain at the signed generation time and enforces the timestamping certificate purpose. SHA-256, SHA-384, and SHA-512 message-imprint algorithms are accepted.
+
+Example: load a locally pinned Trust Store, parse the receipt and detached envelope, then validate the TSA token and apply signer-key policy:
+
+```python
+import os
+from pathlib import Path
+
+from verifier.trust_store import load_trust_store, load_signed_receipt_inputs
+from verifier.trusted_timestamp import verify_signed_receipt_with_timestamp
+
+trust_store = load_trust_store(
+    "trust-store.json",
+    expected_sha256=os.environ["CORD_TRUST_STORE_SHA256"],
+)
+receipt, envelope = load_signed_receipt_inputs("receipt.json", "signature.json")
+
+result = verify_signed_receipt_with_timestamp(
+    receipt,
+    envelope,
+    trust_store,
+    Path("timestamp.tsr").read_bytes(),
+    tsa_ca_file="tsa-ca.pem",
+    required_role="manufacturer",
+    crl_file="tsa-ca.crl",
+    require_crl=True,
+)
+print(result["status"])
+```
+
+The TSA CA file, any intermediate certificates, and CRL are verifier-side trust inputs; never accept them solely from the evidence package. The composite result is `INDETERMINATE` when the token and signing-key checks pass but TSA revocation has not been checked. OCSP is not implemented. The profile and Python implementation are experimental and have not undergone independent security audit or third-party interoperability review. See [the RFC 3161 profile](spec/RFC3161-TIMESTAMP.md).
+
