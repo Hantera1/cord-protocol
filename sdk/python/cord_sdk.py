@@ -37,7 +37,7 @@ def create_evidence(
         "output_hash": sha256_bytes(output_bytes),
     }
     Path(bundle_path).write_text(
-        json.dumps(bundle, ensure_ascii=False, indent=2) + "\\n",
+        json.dumps(bundle, ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8",
     )
     return create_receipt(bundle_path, receipt_path, receipt_created_at)
