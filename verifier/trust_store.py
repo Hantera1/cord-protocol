@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import json
 import re
 from datetime import datetime
 from pathlib import Path
@@ -15,12 +16,7 @@ from typing import Any
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from verifier.signatures import verify_signed_receipt
-from verifier.verify import (
-    CordValidationError,
-    _load_json,
-    _read_bounded,
-    _validate_timestamp,
-)
+from verifier.verify import CordValidationError, _validate_timestamp
 
 STORE_FIELDS = {"trust_store_version", "store_id", "keys"}
 KEY_FIELDS = {
@@ -30,6 +26,59 @@ KEY_FIELDS = {
 }
 REQUIRED_KEY_FIELDS = {"key_id", "algorithm", "public_key", "roles", "status"}
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+MAX_TRUST_STORE_BYTES = 1_048_576
+
+
+def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise CordValidationError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def _reject_surrogates(value: Any, path: str = "trust_store") -> None:
+    if isinstance(value, str):
+        if any(0xD800 <= ord(char) <= 0xDFFF for char in value):
+            raise CordValidationError(f"{path} contains an unpaired Unicode surrogate")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            _reject_surrogates(item, f"{path}[{index}]")
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            _reject_surrogates(key, f"{path} object key")
+            _reject_surrogates(item, f"{path}.{key}")
+
+
+def _read_trust_store(path: str | Path) -> bytes:
+    with Path(path).open("rb") as stream:
+        raw = stream.read(MAX_TRUST_STORE_BYTES + 1)
+    if len(raw) > MAX_TRUST_STORE_BYTES:
+        raise CordValidationError(
+            f"trust store exceeds {MAX_TRUST_STORE_BYTES} bytes"
+        )
+    if raw.startswith(b"\\xef\\xbb\\xbf"):
+        raise CordValidationError("trust store must not contain a UTF-8 BOM")
+    return raw
+
+
+def _parse_trust_store(raw: bytes) -> dict[str, Any]:
+    try:
+        text = raw.decode("utf-8", errors="strict")
+        value = json.loads(
+            text,
+            object_pairs_hook=_reject_duplicate_keys,
+            parse_constant=lambda constant: (_ for _ in ()).throw(
+                CordValidationError(f"invalid JSON constant: {constant}")
+            ),
+        )
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise CordValidationError(f"trust store is not valid UTF-8 JSON: {exc}") from exc
+    if not isinstance(value, dict):
+        raise CordValidationError("trust store must be a JSON object")
+    _reject_surrogates(value)
+    return value
 
 
 def _parse_time(value: str, field: str) -> datetime:
@@ -52,12 +101,12 @@ def load_trust_store(
     if not isinstance(expected_sha256, str) or not SHA256_RE.fullmatch(expected_sha256):
         raise CordValidationError("expected_sha256 must be a lowercase SHA-256 digest")
 
-    raw = _read_bounded(path, "trust store")
+    raw = _read_trust_store(path)
     actual_digest = hashlib.sha256(raw).hexdigest()
     if actual_digest != expected_sha256:
         raise CordValidationError("trust store digest does not match configured pin")
 
-    store = _load_json(raw, "trust store")
+    store = _parse_trust_store(raw)
     if set(store) != STORE_FIELDS:
         raise CordValidationError("trust store must contain exactly trust_store_version, store_id, and keys")
     if store["trust_store_version"] != "0.1":
