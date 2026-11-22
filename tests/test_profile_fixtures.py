@@ -62,13 +62,13 @@ class InitialProfileFixtureTests(unittest.TestCase):
 
     def test_example_builder_creates_both_verifiable_packages(self):
         output = self.root / "built-packages"
-        subprocess.run(
+        completed = subprocess.run(
             [sys.executable, str(ROOT / "examples" / "build_profile_packages.py"),
              "--output-dir", str(output)],
-            check=True,
             capture_output=True,
             text=True,
         )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
         for profile_name in ("luxury-asset", "clock"):
             result = verify_profile_package(output / profile_name, PROFILE_ROOT)
             self.assertEqual(result["status"], "PASS", result)
