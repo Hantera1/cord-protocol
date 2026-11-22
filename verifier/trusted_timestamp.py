@@ -21,6 +21,8 @@ from verifier.verify import CordValidationError
 
 MAX_TOKEN_BYTES = 1_048_576
 TIME_RE = re.compile(r"^Time stamp:\s*(.+ GMT)\s*$", re.MULTILINE)
+HASH_RE = re.compile(r"^Hash Algorithm:\s*([A-Za-z0-9-]+)\s*$", re.MULTILINE)
+ALLOWED_IMPRINT_HASHES = {"sha256", "sha384", "sha512"}
 
 
 def _signature_bytes(envelope: dict[str, Any]) -> bytes:
