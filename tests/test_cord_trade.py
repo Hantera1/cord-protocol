@@ -33,6 +33,14 @@ class CordTradeTests(unittest.TestCase):
         self.assertEqual(validate_trade_manifest(self.manifest), self.manifest)
         self.assertEqual(len(trade_manifest_hash(self.manifest)), 64)
 
+    def test_watch_and_silver_examples_match_schema(self):
+        from pathlib import Path
+        import json
+        root = Path(__file__).resolve().parents[1]
+        for filename in ("trade_watch_sale.json", "trade_silver_lot.json"):
+            data = json.loads((root / "examples" / filename).read_text(encoding="utf-8"))
+            self.assertEqual(validate_trade_manifest(data), data)
+
     def test_rejects_unknown_fields(self):
         invalid = {**self.manifest, "secret_private_key": "never"}
         with self.assertRaises(CordTradeValidationError):
