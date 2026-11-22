@@ -11,6 +11,7 @@ import hashlib
 import json
 import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -78,7 +79,17 @@ def _sha256(raw: bytes) -> str:
 def _version_tuple(value: str) -> tuple[int, ...]:
     if not isinstance(value, str) or not re.fullmatch(r"(0|[1-9][0-9]*)([.](0|[1-9][0-9]*)){0,2}", value):
         raise ProfileVerificationError(f"invalid numeric version: {value!r}")
-    return tuple(int(part) for part in value.split("."))
+    parts = tuple(int(part) for part in value.split("."))
+    return parts + (0,) * (3 - len(parts))
+
+
+def _validate_utc_timestamp(value: str, field: str) -> None:
+    if not isinstance(value, str) or not UTC_TIMESTAMP.fullmatch(value):
+        raise ProfileVerificationError(f"{field} must be an RFC 3339 UTC timestamp ending in Z")
+    try:
+        datetime.fromisoformat(value[:-1] + "+00:00")
+    except ValueError as exc:
+        raise ProfileVerificationError(f"{field} is not a valid timestamp") from exc
 
 
 def _safe_registry_file(root: Path, relative: str) -> Path:
@@ -120,8 +131,7 @@ def create_profile_receipt(
         raise UnsupportedProfileError("unsupported manifest_version")
     if not isinstance(manifest.get("profile_id"), str) or not isinstance(manifest.get("profile_version"), str):
         raise ProfileVerificationError("manifest profile_id and profile_version are required")
-    if not UTC_TIMESTAMP.fullmatch(created_at):
-        raise ProfileVerificationError("created_at must be an RFC 3339 UTC timestamp ending in Z")
+    _validate_utc_timestamp(created_at, "created_at")
     receipt = {
         "receipt_version": PROFILE_RECEIPT_VERSION,
         "profile_id": manifest["profile_id"],
@@ -203,7 +213,11 @@ def verify_profile_package(
         if not isinstance(entry, dict):
             raise ProfileVerificationError("invalid local registry entry")
 
-        pinned_manifest_path = _safe_registry_file(registry_root, entry.get("manifest_path", ""))
+        manifest_relpath = entry.get("manifest_path")
+        schema_relpath = entry.get("evidence_schema_path")
+        if not isinstance(manifest_relpath, str) or not isinstance(schema_relpath, str):
+            raise ProfileVerificationError("registry entry must contain string manifest_path and evidence_schema_path")
+        pinned_manifest_path = _safe_registry_file(registry_root, manifest_relpath)
         pinned_manifest, pinned_manifest_raw = _load_json(pinned_manifest_path, "pinned profile manifest")
         if pinned_manifest_raw != manifest_raw:
             raise ProfileVerificationError("package manifest does not match locally pinned manifest bytes")
@@ -240,15 +254,14 @@ def verify_profile_package(
             raise ProfileVerificationError("invalid manifest_file_hash")
         if not HEX_SHA256.fullmatch(profile_receipt["evidence_file_hash"]):
             raise ProfileVerificationError("invalid evidence_file_hash")
-        if not UTC_TIMESTAMP.fullmatch(profile_receipt["created_at"]):
-            raise ProfileVerificationError("invalid profile receipt created_at")
+        _validate_utc_timestamp(profile_receipt["created_at"], "profile receipt created_at")
         if _sha256(manifest_raw) != profile_receipt["manifest_file_hash"]:
             raise ProfileVerificationError("profile manifest file hash mismatch")
         if _sha256(evidence_raw) != profile_receipt["evidence_file_hash"]:
             raise ProfileVerificationError("profile evidence file hash mismatch")
         checks["profile_package_integrity"] = {"status": "PASS"}
 
-        schema_path = _safe_registry_file(registry_root, entry.get("evidence_schema_path", ""))
+        schema_path = _safe_registry_file(registry_root, schema_relpath)
         evidence_schema, _ = _load_json(schema_path, "pinned profile evidence schema")
         _validate_schema(evidence, evidence_schema, "profile evidence")
         checks["profile_validation"] = {
