@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from verifier.verify import CordValidationError, create_receipt, verify_files
 
@@ -33,10 +34,8 @@ class CordVerifierTests(unittest.TestCase):
 
     def test_published_test_vector_passes(self):
         root = Path(__file__).resolve().parents[1]
-        result = verify_files(
-            root / "test-vectors" / "bundle_valid.json",
-            root / "test-vectors" / "receipt_valid.json",
-        )
+        result = verify_files(root / "test-vectors" / "bundle_valid.json",
+                              root / "test-vectors" / "receipt_valid.json")
         self.assertEqual(result["status"], "PASS")
 
     def test_bundle_byte_change_fails(self):
@@ -52,8 +51,7 @@ class CordVerifierTests(unittest.TestCase):
             verify_files(self.bundle, self.receipt)
 
     def test_extra_bundle_field_rejected(self):
-        bundle = dict(BUNDLE, unexpected="not allowed")
-        self.bundle.write_text(json.dumps(bundle), encoding="utf-8")
+        self.bundle.write_text(json.dumps(dict(BUNDLE, unexpected="not allowed")), encoding="utf-8")
         with self.assertRaises(CordValidationError):
             verify_files(self.bundle, self.receipt)
 
@@ -63,14 +61,34 @@ class CordVerifierTests(unittest.TestCase):
             verify_files(self.bundle, self.receipt)
 
     def test_invalid_hash_rejected(self):
-        bundle = dict(BUNDLE, input_hash="xyz")
-        self.bundle.write_text(json.dumps(bundle), encoding="utf-8")
+        self.bundle.write_text(json.dumps(dict(BUNDLE, input_hash="xyz")), encoding="utf-8")
         with self.assertRaises(CordValidationError):
             verify_files(self.bundle, self.receipt)
 
     def test_wrong_version_rejected(self):
-        bundle = dict(BUNDLE, spec_version="9.9")
-        self.bundle.write_text(json.dumps(bundle), encoding="utf-8")
+        self.bundle.write_text(json.dumps(dict(BUNDLE, spec_version="9.9")), encoding="utf-8")
+        with self.assertRaises(CordValidationError):
+            verify_files(self.bundle, self.receipt)
+
+    def test_oversized_bundle_rejected_before_full_read(self):
+        self.bundle.write_bytes(b"x" * 32)
+        with patch("verifier.verify.MAX_FILE_BYTES", 16):
+            with self.assertRaisesRegex(CordValidationError, "exceeds 16 bytes"):
+                verify_files(self.bundle, self.receipt)
+
+    def test_oversized_receipt_rejected(self):
+        self.receipt.write_bytes(b"x" * 32)
+        with patch("verifier.verify.MAX_FILE_BYTES", 16):
+            with self.assertRaisesRegex(CordValidationError, "exceeds 16 bytes"):
+                verify_files(self.bundle, self.receipt)
+
+    def test_deeply_nested_json_fails_closed(self):
+        self.bundle.write_text("[" * 2000 + "0" + "]" * 2000, encoding="utf-8")
+        with self.assertRaises(CordValidationError):
+            verify_files(self.bundle, self.receipt)
+
+    def test_utf8_bom_rejected(self):
+        self.bundle.write_bytes(b"\\xef\\xbb\\xbf" + json.dumps(BUNDLE).encode("utf-8"))
         with self.assertRaises(CordValidationError):
             verify_files(self.bundle, self.receipt)
 
