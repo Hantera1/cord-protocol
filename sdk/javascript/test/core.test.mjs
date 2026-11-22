@@ -48,7 +48,7 @@ test("invalid UTF-8 is rejected", () => {
 
 test("unpaired Unicode surrogate is rejected", () => {
   const bundle = JSON.parse(bundleBytes.toString("utf8"));
-  bundle.model_id = "\\ud800";
+  bundle.model_id = String.fromCharCode(0xd800);
   const invalid = Buffer.from(JSON.stringify(bundle));
   assert.throws(() => verifyBytes(invalid, receiptBytes), /surrogate/);
 });
