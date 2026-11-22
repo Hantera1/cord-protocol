@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { canonicalBundleBytes, verifyBytes, CordValidationError } from "../src/core.mjs";
+import { canonicalBundleBytes, createReceiptBytes, verifyBytes, CordValidationError } from "../src/core.mjs";
 
 const root = new URL("../../../", import.meta.url);
 const bundleBytes = await readFile(new URL("test-vectors/bundle_valid.json", root));
@@ -59,4 +59,19 @@ test("unknown Core fields are rejected", () => {
 
 test("files above 1 MiB are rejected", () => {
   assert.throws(() => verifyBytes(Buffer.alloc(1_048_577), receiptBytes), /exceeds/);
+});
+
+test("JavaScript receipt creation reproduces the published Python fixture byte-for-byte", () => {
+  const generated = createReceiptBytes(bundleBytes, "2026-03-06T12:00:05Z");
+  assert.deepEqual(generated, receiptBytes);
+  assert.equal(verifyBytes(bundleBytes, generated).status, "PASS");
+});
+
+test("impossible calendar dates are rejected", () => {
+  const bundle = JSON.parse(bundleBytes.toString("utf8"));
+  bundle.timestamp = "2026-02-30T12:00:00Z";
+  assert.throws(
+    () => verifyBytes(Buffer.from(JSON.stringify(bundle)), receiptBytes),
+    /valid RFC 3339 UTC timestamp/,
+  );
 });
