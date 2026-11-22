@@ -117,6 +117,30 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
             "-config", str(cls.root / "tsa.cnf"),
             "-token_out", "-out", str(cls.token),
         ])
+        # Generate a real issuer CRL so the full-chain CRL path is exercised.
+        (cls.root / "newcerts").mkdir()
+        (cls.root / "index.txt").write_text("", encoding="ascii")
+        (cls.root / "crlnumber").write_text("1000\n", encoding="ascii")
+        (cls.root / "ca.cnf").write_text(
+            "[ ca ]\n"
+            "default_ca = CA_default\n"
+            "[ CA_default ]\n"
+            f"dir = {cls.root}\n"
+            f"database = {cls.root / 'index.txt'}\n"
+            f"new_certs_dir = {cls.root / 'newcerts'}\n"
+            f"certificate = {cls.ca}\n"
+            f"private_key = {cls.ca_key}\n"
+            f"serial = {cls.root / 'ca.srl'}\n"
+            f"crlnumber = {cls.root / 'crlnumber'}\n"
+            "default_md = sha256\n"
+            "default_crl_days = 1\n"
+            "policy = policy_any\n"
+            "[ policy_any ]\n"
+            "commonName = supplied\n",
+            encoding="ascii",
+        )
+        cls.crl = cls.root / "ca.crl"
+        cls.openssl(["ca", "-gencrl", "-config", str(cls.root / "ca.cnf"), "-out", str(cls.crl), "-batch"])
         # Independent trust anchor used to prove the verifier rejects an
         # otherwise well-formed token from an untrusted TSA hierarchy.
         cls.other_ca = cls.root / "other-ca.pem"
@@ -161,6 +185,18 @@ class RFC3161OpenSSLIntegrationTests(unittest.TestCase):
             verify_receipt_signature_timestamp(
                 self.token.read_bytes(), self.envelope, self.ca, require_crl=True
             )
+
+    def test_full_chain_crl_validation_passes(self):
+        result = verify_receipt_signature_timestamp(
+            self.token.read_bytes(),
+            self.envelope,
+            self.ca,
+            crl_file=self.crl,
+            require_crl=True,
+        )
+        self.assertEqual(result["status"], "PASS")
+        self.assertEqual(result["tsa_revocation"], "PASS")
+        self.assertIsNotNone(result["tsa_crl_sha256"])
 
     def test_timestamp_flows_into_trust_store_policy(self):
         result = verify_signed_receipt_with_timestamp(
