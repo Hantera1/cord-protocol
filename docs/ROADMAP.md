@@ -115,3 +115,14 @@ Do not mark Cord stable or claim regulatory compliance until these release gates
 - [ ] Add further profiles for identity/key trust, provenance, AI events/agents, financial transactions, real estate, supply chain, and public-sector evidence as specified in the portfolio.
 
 **Status:** use cases are reserved and profile drafts are documented. This is not a claim that all listed capabilities are implemented, interoperable, certified, or production-ready.
+
+
+## Architecture governance — CORD Architecture Charter
+
+- [x] Establish the project-wide Architecture Charter in `docs/PROJECT-CHARTER.md`.
+- [x] Record the layered architecture: stable Core, trust/evidence extensions, application profiles, SDKs/integrations, and optional services.
+- [x] Record cross-industry strategic scope and the maturity vocabulary used for all capability claims.
+- [ ] Review the charter through public project feedback and adopt a stable charter version after review.
+- [ ] Apply the charter's versioning, security, privacy, and release requirements to each normative profile and extension.
+
+**Status:** Architecture Charter v1.0 draft committed. The charter governs project direction; individual technical specifications and implementation evidence govern conformance and maturity.
