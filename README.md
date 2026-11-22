@@ -2,188 +2,83 @@
   <img src="logo.png.PNG" alt="Cord Logo" width="400">
 </p>
 
----
+# Cord Protocol
 
+**Cord** is an open, vendor-neutral protocol draft for cryptographically verifiable evidence about AI and digital events.
 
+Cord uses a bundle and a receipt to let an independent verifier check whether the evidence matches its cryptographic commitments. Core verification is intended to work offline.
 
-**Cord** is a minimal protocol for cryptographically verifiable AI events.
+> **Status: Experimental draft (v0.1).** Cord is not yet a finalized standard or a production security certification. The specification, canonicalization rules, verifier, and test vectors are being developed.
 
-It provides a simple and deterministic way to verify that an AI-generated output has not been modified after generation.
+## What Cord can and cannot establish
 
-Cord allows any independent system to verify AI outputs using a small evidence package consisting of a **bundle** and a **receipt**.
+Cord Core is designed to check evidence integrity: whether the supplied files match the hashes in the receipt.
 
-Verification can be performed **offline**, without trusting the system that originally produced the output.
+A passing integrity check does **not** by itself prove who created an event, which model actually generated an output, whether the declared timestamp is trustworthy, or whether the content is true, safe, lawful, or policy-compliant. Those require separate mechanisms and evidence.
 
----
+## Core evidence package
 
-## Why Cord
+- `bundle.json` describes the event and includes hashes of the input and output.
+- `receipt.json` binds the bundle to cryptographic hashes.
 
-AI systems are increasingly used in environments where **verification, transparency, and auditability** are important.
+The Core is designed to remain small, implementation-neutral, and independently verifiable. Optional capabilities such as signatures and trusted timestamps will be specified as separate extensions.
 
-However, most AI outputs today cannot be independently verified after generation.
+## Quick start
 
-Typical problems include:
-
-- modified logs
-- unverifiable outputs
-- platform-dependent audit systems
-- lack of standard formats for AI event verification
-
-Cord introduces a minimal, deterministic format that enables **independent verification of AI-generated outputs**.
-
----
-
-## Core Idea
-
-Cord represents an AI event using two files:
-
-- `bundle.json`
-- `receipt.json`
-
-```
-AI event
-   ↓
-bundle.json
-   ↓
-receipt.json
-   ↓
-verification
-```
-
-The bundle describes the AI event.
-
-The receipt binds the bundle to cryptographic hashes.
-
-A verifier can then independently confirm the integrity of the event.
-
-Verification returns a deterministic result:
-
-PASS
-
-or
-
-FAIL
-
----
-
-## Example Bundle
-
-```json
-{
-  "spec_version": "0.1",
-  "model_id": "demo-model",
-  "timestamp": "2026-03-06T12:00:00Z",
-  "policy_id": "cord-output-v0.1",
-  "input_hash": "1111111111111111111111111111111111111111111111111111111111111111",
-  "output_hash": "2222222222222222222222222222222222222222222222222222222222222222"
-}
-```
-
----
-
-## Verification
-
-Verification checks that:
-
-1. the bundle structure is valid  
-2. the bundle hash matches the receipt  
-3. the bundle contents have not been modified  
-
-If any verification step fails, the event is considered invalid.
-
-Cord verification is designed to be:
-
-- deterministic
-- reproducible
-- independent of any platform
-
----
-
-## Repository Structure
-
-```
-spec/          Cord protocol specification
-test-vectors/  deterministic verification examples
-verifier/      reference verifier implementation
-reference/     supporting documentation
-```
-
----
-
-## Design Goals
-
-Cord is designed to be:
-
-- minimal
-- deterministic
-- implementation-neutral
-- verifiable offline
-
-The protocol intentionally keeps the core format small to reduce ambiguity and improve cross-implementation compatibility.
-
----
-## Quick Start
-
-Example flow:
-
-1. Generate hashes of input and output  
-2. Create `bundle.json`  
-3. Generate `receipt.json`  
-4. Run verification  
-
-Example:
+The current reference verifier can be run with:
 
 ```bash
 python verifier/verify.py bundle.json receipt.json
 ```
 
----
+The v0.1 implementation and examples are experimental. Check the specification and test vectors before relying on a result. Known inconsistencies are being addressed; do not treat the current repository as a stable production release.
 
-## Status
----
+## Project principles
 
-## Contributing 🤝
+- Open protocol and public specifications.
+- Vendor-neutral integrations; no required AI provider or cloud.
+- Offline Core verification.
+- Strict, deterministic formats with reproducible test vectors.
+- Optional hosted services must never be required to verify Core evidence.
+- Clear separation between integrity, authenticity, identity, and trusted time.
 
-We welcome developers and researchers to help improve the Cord protocol. Whether it's fixing bugs, suggesting new features, or writing documentation, your help is appreciated!
+## Documentation
 
-**How you can help:**
-* **SDKs:** Help us build client libraries for **JavaScript/TypeScript**, **Go**, and **Rust**.
-* **Protocol Review:** Audit our hashing logic and signature standards.
-* **Integrations:** Help us create plugins for frameworks like **LangChain** or **AutoGPT**.
+- [Cord Core Formats](spec/FORMATS.md)
+- [Cord Core Specification](spec/cord-core.md)
+- [Project Charter](docs/PROJECT-CHARTER.md)
+- [Completion Roadmap](docs/ROADMAP.md)
+- [Security Model](docs/SECURITY-MODEL.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security Policy](SECURITY.md)
 
-To get started, simply **fork** the repo, create a feature branch, and submit a **Pull Request**.
+## How to contribute
 
-Cord is currently an **experimental protocol draft (v0.1)**.
+We welcome specification reviews, verifier improvements, independent implementations, test vectors, SDKs, and integration examples. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and open an issue before proposing significant protocol changes.
 
-The specification may evolve as implementations and verification tools mature.
+## Sustainability and support
 
----
+Cord's protocol and core verification are intended to remain open. Voluntary donations may support maintenance and development; donations do not buy protocol privileges, influence verification results, or provide exclusive access.
 
-## License
-
-See the `LICENSE` file for details.
----
-
-## Creator
-
-Cord was originally created by:
-
-GitHub: https://github.com/Hantera1
-
-This repository serves as the original reference implementation and specification of the Cord protocol.
----
-
-## Support
-
-If you find Cord useful and want to support development, voluntary contributions are appreciated.
+Current voluntary crypto donation details are listed below. We will add hosted payment or sponsorship options only after the relevant accounts and ownership are configured and verified.
 
 <details>
-<summary>Click to view Crypto Donation Addresses (ETH / BTC)</summary>
+<summary>Crypto donation addresses</summary>
 
-### Ethereum (ETH)
+**Ethereum (ETH)**
+
 `0x3d6344fc57ba0039429bdf78dd7ca734c42195b9`
 
-### Bitcoin (BTC)
+**Bitcoin (BTC)**
+
 `bc1q8qtrmfmq53smfhzp8s6p9er080z66zvzae9f38`
 
 </details>
+
+## License
+
+Cord is published under the [Apache License 2.0](LICENSE).
+
+## Origin
+
+Cord was originally created by [Hantera1](https://github.com/Hantera1). This repository contains the reference specification and implementation.
