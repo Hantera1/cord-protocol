@@ -195,6 +195,22 @@ def load_trust_store(
     }
 
 
+def load_signed_receipt_inputs(
+    receipt_path: str | Path,
+    envelope_path: str | Path,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Load receipt and signature-envelope JSON with strict UTF-8 and duplicate-key checks."""
+    receipt = _parse_trust_store(
+        _read_trust_store(receipt_path, "receipt"),
+        "receipt",
+    )
+    envelope = _parse_trust_store(
+        _read_trust_store(envelope_path, "signature envelope"),
+        "signature envelope",
+    )
+    return receipt, envelope
+
+
 def verify_signed_receipt_with_store(
     receipt: dict[str, Any],
     envelope: dict[str, Any],
