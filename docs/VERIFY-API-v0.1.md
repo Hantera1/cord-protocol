@@ -70,10 +70,8 @@ A syntactically valid verification request returns HTTP 200 even when the eviden
     "spec_version": "0.1",
     "profile": "cord-core",
     "checks": {
-      "bundle_schema": "PASS",
-      "receipt_schema": "PASS",
-      "canonical_bundle_hash": "PASS",
-      "exact_bundle_file_hash": "PASS"
+      "bundle_hash": true,
+      "bundle_file_hash": true
     },
     "meaning": "The supplied bundle and receipt satisfy CORD Core v0.1 integrity checks. This does not prove authorship, model identity, trusted time, or claim truth."
   },
@@ -95,12 +93,6 @@ A syntactically valid verification request returns HTTP 200 even when the eviden
     "status": "FAIL",
     "spec_version": "0.1",
     "profile": "cord-core",
-    "checks": {
-      "bundle_schema": "PASS",
-      "receipt_schema": "PASS",
-      "canonical_bundle_hash": "FAIL",
-      "exact_bundle_file_hash": "FAIL"
-    },
     "error_code": "HASH_MISMATCH",
     "meaning": "One or more deterministic CORD Core v0.1 integrity checks failed."
   },
@@ -112,7 +104,7 @@ A syntactically valid verification request returns HTTP 200 even when the eviden
 }
 ```
 
-The examples illustrate the intended contract; exact field names and per-check reporting must be reconciled with the verifier's actual structured results before implementation. The service MUST NOT fabricate individual check results that the verifier did not produce.
+The examples reflect the current reference verifier output: the two hash checks are booleans. Schema and timestamp validation failures are represented by the overall FAIL outcome and a generic error code; the API MUST NOT fabricate per-check results that the verifier does not produce.
 
 ### HTTP error semantics
 
@@ -191,6 +183,7 @@ Only the Core verification endpoint is in the initial implementation scope.
 | Endpoint | Status | Purpose |
 |---|---|---|
 | `POST /v1/verify/core` | Initial | Verify Core v0.1 bundle + receipt |
+| `GET /v1/health` | Initial operations | Minimal liveness response |
 | `GET /v1/health` | Initial operations | Basic liveness, no sensitive details |
 | `GET /v1/usage` | Later | Customer's quota and usage |
 | `POST /v1/verify/signed-receipt` | Later | Signed receipt + externally pinned Trust Store policy |
