@@ -1,0 +1,251 @@
+{
+  "vector_version": "cord-evc-vectors-0.1",
+  "cases": [
+    {
+      "name": "all-dependencies-match",
+      "expected_status": "VALID",
+      "graph": {
+        "schema_version": "cord-evc-0.1",
+        "graph_id": "vector-valid-001",
+        "subject": {
+          "id": "assistant-prod",
+          "version": "v1",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "current_state": [
+          {
+            "type": "MODEL_VERSION",
+            "object_id": "model-A",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "type": "TOOL_PERMISSION",
+            "object_id": "browser-readonly",
+            "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "claims": [
+          {
+            "id": "claim-model",
+            "statement": "Modellversionen är oförändrad",
+            "scope": "model identity",
+            "evidence_ids": [
+              "ev-1"
+            ]
+          },
+          {
+            "id": "claim-tools",
+            "statement": "Tool permission set is unchanged",
+            "scope": "tool permissions",
+            "evidence_ids": [
+              "ev-2"
+            ]
+          }
+        ],
+        "evidence": [
+          {
+            "id": "ev-1",
+            "kind": "test-report",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "id": "ev-2",
+            "kind": "configuration-snapshot",
+            "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "dependencies": [
+          {
+            "claim_id": "claim-model",
+            "type": "MODEL_VERSION",
+            "object_id": "model-A",
+            "expected_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "claim_id": "claim-tools",
+            "type": "TOOL_PERMISSION",
+            "object_id": "browser-readonly",
+            "expected_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ]
+      }
+    },
+    {
+      "name": "selective-invalidation",
+      "expected_status": "STALE",
+      "graph": {
+        "schema_version": "cord-evc-0.1",
+        "graph_id": "vector-stale-001",
+        "subject": {
+          "id": "assistant-prod",
+          "version": "v1",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "current_state": [
+          {
+            "type": "MODEL_VERSION",
+            "object_id": "model-A",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "type": "TOOL_PERMISSION",
+            "object_id": "browser-readonly",
+            "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        ],
+        "claims": [
+          {
+            "id": "claim-model",
+            "statement": "Model unchanged",
+            "scope": "model identity",
+            "evidence_ids": [
+              "ev-1"
+            ]
+          },
+          {
+            "id": "claim-tools",
+            "statement": "Permissions unchanged",
+            "scope": "tool permissions",
+            "evidence_ids": [
+              "ev-2"
+            ]
+          }
+        ],
+        "evidence": [
+          {
+            "id": "ev-1",
+            "kind": "test-report",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "id": "ev-2",
+            "kind": "config",
+            "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "dependencies": [
+          {
+            "claim_id": "claim-model",
+            "type": "MODEL_VERSION",
+            "object_id": "model-A",
+            "expected_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "claim_id": "claim-tools",
+            "type": "TOOL_PERMISSION",
+            "object_id": "browser-readonly",
+            "expected_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing-current-state",
+      "expected_status": "INDETERMINATE",
+      "graph": {
+        "schema_version": "cord-evc-0.1",
+        "graph_id": "vector-missing-001",
+        "subject": {
+          "id": "assistant-prod",
+          "version": "v1",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "current_state": [],
+        "claims": [
+          {
+            "id": "claim-model",
+            "statement": "Model unchanged",
+            "scope": "model identity",
+            "evidence_ids": [
+              "ev-1"
+            ]
+          }
+        ],
+        "evidence": [
+          {
+            "id": "ev-1",
+            "kind": "test-report",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          }
+        ],
+        "dependencies": [
+          {
+            "claim_id": "claim-model",
+            "type": "MODEL_VERSION",
+            "object_id": "model-A",
+            "expected_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          }
+        ]
+      }
+    },
+    {
+      "name": "unicode-code-point-ordering",
+      "expected_status": "VALID",
+      "graph": {
+        "schema_version": "cord-evc-0.1",
+        "graph_id": "unicode-ordering-001",
+        "subject": {
+          "id": "assistant-prod",
+          "version": "v1",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "current_state": [
+          {
+            "type": "MODEL_VERSION",
+            "object_id": "",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "type": "TOOL_PERMISSION",
+            "object_id": "𐀀",
+            "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "claims": [
+          {
+            "id": "",
+            "statement": "Modellversionen är oförändrad",
+            "scope": "model identity",
+            "evidence_ids": [
+              ""
+            ]
+          },
+          {
+            "id": "𐀀",
+            "statement": "Tool permission set is unchanged",
+            "scope": "tool permissions",
+            "evidence_ids": [
+              "𐀀"
+            ]
+          }
+        ],
+        "evidence": [
+          {
+            "id": "",
+            "kind": "test-report",
+            "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "id": "𐀀",
+            "kind": "configuration-snapshot",
+            "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ],
+        "dependencies": [
+          {
+            "claim_id": "",
+            "type": "MODEL_VERSION",
+            "object_id": "",
+            "expected_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          {
+            "claim_id": "𐀀",
+            "type": "TOOL_PERMISSION",
+            "object_id": "𐀀",
+            "expected_sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          }
+        ]
+      }
+    }
+  ]
+}
