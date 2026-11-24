@@ -45,12 +45,29 @@ class EVCCrossRuntimeTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr.decode("utf-8", "replace"))
         self.assertEqual(json.loads(proc.stdout.decode("utf-8")), expected)
 
+
+    def test_python_whitespace_definition_matches_typescript(self):
+        for invalid_id in ("\\u0085leading", "trailing\\u001c", "\\u001f"):
+            with self.subTest(invalid_id=invalid_id):
+                graph = self.vectors["cases"][0]["graph"]
+                graph = json.loads(json.dumps(graph, ensure_ascii=False))
+                graph["graph_id"] = invalid_id
+                with self.assertRaises(EVCValidationError):
+                    evaluate_graph(graph)
+                with tempfile.NamedTemporaryFile("wb", suffix=".json") as f:
+                    f.write(json.dumps(graph, ensure_ascii=False).encode("utf-8"))
+                    f.flush()
+                    proc = subprocess.run([NODE, str(CLI), f.name], capture_output=True, check=False)
+                self.assertNotEqual(proc.returncode, 0)
+
     def test_typescript_rejects_malformed_json_inputs(self):
         bad_inputs = [
             b'{"schema_version":"cord-evc-0.1","schema_version":"cord-evc-0.1"}',
             b'\xef\xbb\xbf{}',
             b'\xff',
             b'{"x":NaN}',
+            b'{"outer":{"k":1,"k":2}}',
+            b'{"x": [1,]}',
         ]
         for raw in bad_inputs:
             with self.subTest(raw=raw[:20]):
