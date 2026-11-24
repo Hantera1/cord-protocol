@@ -100,4 +100,4 @@ Before production use, a future revision must specify authenticated change event
 
 ## 10. Conformance
 
-The reference tests cover unchanged dependencies, selective invalidation, missing state, missing evidence, duplicate structures, unknown references and types, strict JSON parsing, input bounds, and deterministic output. Passing these tests is necessary but not sufficient for production conformance or security assurance.
+The repository contains independent Python and TypeScript evaluators plus shared cross-runtime vectors in `test-vectors/evc-conformance-0.1.json`. CI compiles the TypeScript implementation and compares complete result objects and graph digests against Python for each vector. It also tests array-order invariance and malformed JSON rejection in TypeScript. The suite currently runs 63 repository tests in total; this is implementation-level conformance evidence, not an independent security audit or proof of protocol completeness. Passing these tests is necessary but not sufficient for production conformance or security assurance.
