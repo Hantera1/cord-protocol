@@ -113,7 +113,7 @@ Proposed formulas:
 
 The detached signature envelope should contain exactly the version, algorithm, issuer key ID, and Base64 signature. The verifier MUST resolve the public key from independently configured trust material, never from the event package alone.
 
-This is a design direction, not a finalized canonicalization decision. It must be validated against existing CORD canonicalization conventions and independent implementations before becoming normative.
+This is a provisional design decision, not yet a normative rule. Before implementation, independent implementations must demonstrate byte-for-byte RFC 8785 conformance and the extension-specific vectors must cover UTF-16 property ordering, supplementary-plane characters, number rejection, Unicode preservation, duplicate keys, and malformed surrogate sequences.
 
 ## 7. Stream integrity, replay, and forks
 
@@ -149,7 +149,7 @@ The protocol should permit multiple independent witnesses and portable checkpoin
 
 ## 9. Issuer authorization and key lifecycle
 
-The Trust Store provides key resolution and role metadata, but a role string is only a local trust decision. The event verifier must apply policy to the exact combination of:
+The Trust Store provides key resolution and role metadata, but a role string is only a local trust decision. The trust-store digest and the authorization-policy digest MUST be pinned independently of the event stream, or delivered over an authenticated administrative channel. A policy update MUST be authorized by a separately configured policy authority or approved out of band; an event cannot grant its own issuer authority. The event verifier must apply policy to the exact combination of:
 - trusted key ID and key material;
 - issuer role;
 - subject and stream scope;
@@ -157,7 +157,7 @@ The Trust Store provides key resolution and role metadata, but a role string is 
 - effective policy version;
 - key status and applicable time evidence.
 
-A key authorized to sign receipts is not automatically authorized to report dependency changes, revoke another key, or issue checkpoints.
+A key authorized to sign receipts is not automatically authorized to report dependency changes, revoke another key, or issue checkpoints. The roles `change_event_issuer`, `checkpoint_witness`, and `trust_policy_authority` MUST be distinct policy capabilities. A deployment MAY assign multiple capabilities to one key, but MUST document the concentration of trust and SHOULD use separate keys and operators for issuer and witness roles.
 
 Key rotation must use a new key ID and key material. Historical verification must retain the relevant trust-store snapshots, exact digests, and policy versions. A current trust-store status cannot by itself prove the historical status of a key.
 
@@ -184,7 +184,7 @@ Proposed processing sequence:
 6. Compare that snapshot with the EVC graph and evaluate claim-scoped freshness.
 7. Report EVC freshness separately from event authenticity, issuer authorization, checkpoint status, and time status.
 
-A consumer MUST NOT mark a dependency as authoritatively changed solely because an unauthenticated event says so. If the event stream is incomplete or unanchored under the selected policy, the resulting current state may be INDETERMINATE.
+A consumer MUST NOT mark a dependency as authoritatively changed solely because an unauthenticated event says so. If the baseline is missing, the stream has an unresolved gap/fork, checkpoint coverage is insufficient, or the event source cannot establish completeness to the level required by policy, the resulting current state MUST be INDETERMINATE rather than inferred complete. A valid signature and checkpoint do not prove the factual correctness of the asserted dependency digest; deployments may require an independent measurement/attestation source.
 
 The event stream must not silently mutate a historical EVC graph or overwrite an earlier evaluation. New observations produce new graph snapshots and new evaluation records.
 
@@ -216,7 +216,7 @@ Private keys MUST NOT be stored in event packages, repositories, logs, or public
 
 No implementation should begin until the following design gates are closed:
 
-1. **Protocol review:** finalize the event field set, event-type payloads, stream lifecycle, canonicalization profile, and exact signature coverage.
+1. **Protocol review:** finalize the event field set, event-type payloads, stream lifecycle, JCS constraints, canonical decimal sequence encoding, and exact signature/checkpoint coverage.
 2. **Threat review:** review replay, fork, omission, full-chain replacement, compromised issuer, key rotation, revocation, checkpoint compromise, parser abuse, and downgrade behavior.
 3. **Interoperability plan:** publish positive and negative vectors, including byte-exact canonicalization, Unicode, duplicate keys, malformed signatures, stream forks, replay, and checkpoint mismatch.
 4. **Trust policy:** define role/scope authorization, trust-store snapshot retention, historical verification, trusted-time requirements, and conservative failure semantics.
