@@ -129,7 +129,7 @@ def _validate(graph: Mapping[str, Any]):
         raise EVCValidationError("current_state must be an array")
     for i, item in enumerate(graph["current_state"]):
         _fields(item, STATE_FIELDS, f"current_state[{i}]")
-        if item["type"] not in DEPENDENCY_TYPES:
+        if not _nonempty(item["type"]) or item["type"] not in DEPENDENCY_TYPES:
             raise EVCValidationError(f"current_state[{i}].type is unsupported")
         _id(item["object_id"], f"current_state[{i}].object_id")
         _digest(item["sha256"], f"current_state[{i}].sha256")
@@ -144,9 +144,9 @@ def _validate(graph: Mapping[str, Any]):
         raise EVCValidationError("dependencies must be an array")
     for i, item in enumerate(graph["dependencies"]):
         _fields(item, DEPENDENCY_FIELDS, f"dependencies[{i}]")
-        if item["claim_id"] not in claims:
+        if not _nonempty(item["claim_id"]) or item["claim_id"] not in claims:
             raise EVCValidationError(f"dependencies[{i}] references unknown claim")
-        if item["type"] not in DEPENDENCY_TYPES:
+        if not _nonempty(item["type"]) or item["type"] not in DEPENDENCY_TYPES:
             raise EVCValidationError(f"dependencies[{i}].type is unsupported")
         _id(item["object_id"], f"dependencies[{i}].object_id")
         _digest(item["expected_sha256"], f"dependencies[{i}].expected_sha256")
