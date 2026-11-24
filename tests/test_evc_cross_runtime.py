@@ -47,7 +47,7 @@ class EVCCrossRuntimeTests(unittest.TestCase):
 
 
     def test_python_whitespace_definition_matches_typescript(self):
-        for invalid_id in ("\\u0085leading", "trailing\\u001c", "\\u001f"):
+        for invalid_id in ("\u0085leading", "trailing\u001c", "\u001f"):
             with self.subTest(invalid_id=invalid_id):
                 graph = self.vectors["cases"][0]["graph"]
                 graph = json.loads(json.dumps(graph, ensure_ascii=False))
