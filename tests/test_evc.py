@@ -65,6 +65,17 @@ class EVCTests(unittest.TestCase):
         graph["dependencies"][0]["type"] = "MAGIC_TRUST"
         with self.assertRaises(EVCValidationError): evaluate_graph(graph)
 
+    def test_non_string_dependency_selectors_rejected(self):
+        graph = sample_graph()
+        graph["dependencies"][0]["type"] = []
+        with self.assertRaises(EVCValidationError): evaluate_graph(graph)
+        graph = sample_graph()
+        graph["dependencies"][0]["claim_id"] = []
+        with self.assertRaises(EVCValidationError): evaluate_graph(graph)
+        graph = sample_graph()
+        graph["current_state"][0]["type"] = {}
+        with self.assertRaises(EVCValidationError): evaluate_graph(graph)
+
     def test_exact_fields_required(self):
         graph = sample_graph()
         graph["unexpected"] = True
