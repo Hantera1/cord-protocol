@@ -69,6 +69,22 @@ class CordVerifyApiTests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["result"]["status"], "FAIL")
 
+    def test_invalid_unicode_surrogate_is_reported_as_fail(self):
+        bad_bundle = (
+            b'{"spec_version":"0.1","model_id":"\\ud800",'
+            b'"timestamp":"2026-03-06T12:00:00Z",'
+            b'"policy_id":"cord-output-v0.1",'
+            b'"input_hash":"' + b"1" * 64 + b'",'
+            b'"output_hash":"' + b"2" * 64 + b'"}'
+        )
+        _, receipt = evidence_pair()
+        response = self.client.post(
+            "/v1/verify/core",
+            json=request_body(bad_bundle, receipt),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["result"]["status"], "FAIL")
+
     def test_duplicate_outer_json_keys_are_rejected(self):
         response = self.client.post(
             "/v1/verify/core",
