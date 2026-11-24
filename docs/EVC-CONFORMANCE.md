@@ -35,7 +35,7 @@ python -m pip install -r requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-The GitHub Actions workflow performs these steps. Cross-runtime tests compare complete output objects, including the graph digest, for every shared vector. Additional tests cover array-order invariance and malformed input rejection by the TypeScript CLI.
+The GitHub Actions workflow performs these steps. The current repository suite contains 64 tests, including the cross-runtime cases. Cross-runtime tests compare complete output objects, including the graph digest, for every shared vector. Additional tests cover array-order invariance and malformed input rejection by the TypeScript CLI.
 
 ## CLI
 
