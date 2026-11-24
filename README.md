@@ -107,6 +107,9 @@ retained checkpoint to detect full-chain replacement.
 
 ## Experimental extensions
 
+- [Evidence Validity Calculus (EVC) v0.1](spec/EVC.md) — claim-scoped dependency freshness with Python and TypeScript reference evaluators and shared conformance vectors. Experimental; not a trust framework or compliance certification.
+- [EVC conformance and development notes](docs/EVC-CONFORMANCE.md)
+
 - [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
 - [Offline Trust Store v0.1](spec/TRUST-STORE.md)
 - [RFC 3161 Trusted Timestamp Profile (experimental)](spec/RFC3161-TIMESTAMP.md)
