@@ -70,50 +70,55 @@ A normative schema must define exact fields, types, limits, and event-specific p
 | `event_version` | Exact extension version, initially `0.1` |
 | `stream_id` | Stable identifier for one ordered event stream |
 | `event_id` | Unique event identifier within the stream |
-| `sequence` | Monotonically increasing unsigned integer, starting at zero |
+| `sequence` | Monotonically increasing unsigned 64-bit integer encoded as a canonical decimal string |
 | `previous_event_hash` | Prior event hash; all-zero digest only for genesis |
 | `event_type` | Enumerated event type |
 | `subject_id` | Identifier of the assessed subject |
-| `dependency_type` | Typed dependency affected, where applicable |
-| `dependency_id` | Identifier of the affected dependency, where applicable |
-| `before_sha256` | Previous declared dependency digest, where applicable |
-| `after_sha256` | New declared dependency digest, where applicable |
+| `dependency_type` | Typed dependency affected |
+| `dependency_id` | Identifier of the affected dependency |
+| `before_sha256` | Previous dependency digest; explicit null only when genuinely unknown/not applicable |
+| `after_sha256` | New dependency digest; explicit null only when genuinely unknown/not applicable |
 | `issuer_key_id` | Key lookup hint; never a trust anchor by itself |
 | `issued_at` | Producer-declared RFC 3339 UTC time; not trusted time |
 | `payload` | Strict event-type-specific fields |
 
-Initial event types should be narrowly scoped:
+Initial event types are deliberately limited to dependency lifecycle events:
 - `DEPENDENCY_CHANGED`
 - `DEPENDENCY_ADDED`
 - `DEPENDENCY_REMOVED`
-- `POLICY_CHANGED`
-- `KEY_STATUS_CHANGED` (only an assertion; it cannot itself establish key revocation authority)
-- `CHECKPOINT_REFERENCE`
 
-Unknown event types MUST be rejected as UNSUPPORTED. Unknown fields MUST be rejected. Event-specific required and forbidden fields MUST be explicit. A dependency-change event MUST identify both the prior and new digest when both are known; an unknown prior value must be represented explicitly as unknown, not fabricated.
+Policy changes and key-status/revocation changes MUST use separately governed, independently authenticated policy or trust-store update records. They MUST NOT be bootstrapped by an ordinary change-event signature. Checkpoints are detached witness receipts, not events in the stream, and MUST NOT be represented by `CHECKPOINT_REFERENCE` in v0.1.
 
-The event MUST bind the subject, stream, sequence, event type, dependency identity, and digest transition into the signed content. A signature over only a free-form message is insufficient.
+Unknown event types MUST be rejected as UNSUPPORTED. Unknown fields MUST be rejected. Event-specific required and forbidden fields MUST be explicit. A dependency-change event MUST identify the prior and new digest when both are known; an unknown value must be represented explicitly, not fabricated. The event MUST bind the subject, stream, sequence, event type, dependency identity, and digest transition into the signed content. A signature over only a free-form message is insufficient.
+
+The sequence string MUST contain only ASCII decimal digits, MUST be `0` or begin with `1`–`9`, and MUST fit in the unsigned 64-bit range. This avoids JSON number precision differences between runtimes.
 
 ## 6. Canonicalization and cryptographic binding
 
-The normative specification must choose one byte-exact canonicalization profile and publish cross-language vectors before implementation.
+The extension adopts RFC 8785 JSON Canonicalization Scheme (JCS) provisionally, subject to independent implementation review. This is preferable to introducing a third custom JSON canonicalizer, but it is not interchangeable with CORD EVC's Unicode code-point ordering.
 
-Proposed direction:
+Requirements:
 - strict UTF-8 JSON object parsing;
 - reject BOM, duplicate object keys, invalid UTF-8, unpaired surrogates, non-finite numbers, unknown fields, and oversized/nested inputs;
-- use RFC 8785 JSON Canonicalization Scheme (JCS) for the event body, with its number and string constraints stated explicitly;
-- use domain-separated SHA-256 for the event hash;
-- use Ed25519 for the initial signature profile, with algorithm identifiers explicit and no silent fallback.
+- prohibit JSON number values in v0.1 event and checkpoint bodies; encode sequence values as canonical unsigned decimal strings;
+- preserve Unicode strings exactly; do not apply Unicode normalization;
+- apply RFC 8785 property sorting using UTF-16 code units, including nested objects; array order remains significant;
+- use domain-separated SHA-256 for event hashes;
+- use Ed25519 for the initial signature profile, with explicit algorithm identifiers and no silent fallback.
 
-Proposed formulas:
+The event hash is defined over the canonical event body, excluding the hash and detached signature envelope:
 
 `event_hash = SHA256(UTF8("CORD-CHANGE-EVENT-HASH") || 0x00 || UTF8("v0.1") || 0x00 || JCS(event_body))`
 
+The detached signature covers the domain separator and the raw 32-byte event hash:
+
 `signature = Ed25519.Sign(private_key, UTF8("CORD-CHANGE-EVENT-SIGNATURE") || 0x00 || UTF8("v0.1") || 0x00 || raw_32_byte_event_hash)`
 
-The detached signature envelope should contain exactly the version, algorithm, issuer key ID, and Base64 signature. The verifier MUST resolve the public key from independently configured trust material, never from the event package alone.
+The detached signature envelope contains exactly the envelope version, algorithm, issuer key ID, and Base64 signature. The verifier MUST resolve the public key from independently configured trust material, never from the event package alone.
 
-This is a provisional design decision, not yet a normative rule. Before implementation, independent implementations must demonstrate byte-for-byte RFC 8785 conformance and the extension-specific vectors must cover UTF-16 property ordering, supplementary-plane characters, number rejection, Unicode preservation, duplicate keys, and malformed surrogate sequences.
+JCS requires I-JSON-compatible data, including no duplicate property names, valid Unicode, and IEEE-754-compatible numbers. This v0.1 profile avoids number serialization ambiguity by forbidding JSON numbers in signed bodies. JCS does not normalize Unicode strings. See [RFC 8785, Sections 3.1–3.2](https://www.rfc-editor.org/rfc/rfc8785.html).
+
+Before implementation, independent implementations must demonstrate byte-for-byte JCS conformance and extension-specific vectors must cover UTF-16 property ordering, supplementary-plane characters, number rejection, Unicode preservation, duplicate keys, and malformed surrogate sequences.
 
 ## 7. Stream integrity, replay, and forks
 
@@ -135,21 +140,29 @@ A chain proves ordering and internal consistency only. It does not prove that no
 
 To detect full-stream replacement, a verifier needs a trusted checkpoint obtained independently of the stream producer.
 
-A checkpoint should bind at least:
-- stream ID;
-- sequence number;
-- event hash at that sequence;
-- checkpoint format/version;
-- checkpoint issuer or witness identity;
-- checkpoint time assertion, if any.
+A detached checkpoint body binds exactly:
+- `checkpoint_version` (initially `0.1`);
+- `stream_id`;
+- `sequence` (canonical uint64 decimal string);
+- `event_hash` at that sequence;
+- `witness_key_id`;
+- `issued_at` (witness-declared RFC 3339 UTC time, not trusted time).
 
-A checkpoint is trusted only when its witness key or publication channel is independently configured and verified. A checkpoint stored only beside the event stream is not independent.
+The witness signs the canonical checkpoint body with a separate domain separator:
+
+`checkpoint_signature = Ed25519.Sign(witness_private_key, UTF8("CORD-CHANGE-CHECKPOINT-SIGNATURE") || 0x00 || UTF8("v0.1") || 0x00 || JCS(checkpoint_body))`
+
+The exact detached envelope and formula must be frozen with the schema. A checkpoint is trusted only when the witness key is resolved from independently pinned verifier-side trust configuration and authorized for the `checkpoint_witness` role. A checkpoint stored only beside the event stream is not independent.
+
+A checkpoint proves that the trusted witness attested to a particular stream head. It does NOT, by itself, prove that the producer supplied every real-world change or that the witness observed every event. To make omission detection meaningful, the witness or an independent source must receive/observe events at ingestion time under a defined monitoring policy. Periodic checkpoints alone detect replacement after the last trusted checkpoint, not omissions before it. A verifier MUST state the observation and coverage boundary.
 
 The protocol should permit multiple independent witnesses and portable checkpoint receipts. Threshold requirements, witness discovery, transparency-log integration, and gossip/equivocation detection require a separate specification. No single CORD-operated witness should be mandatory.
 
 ## 9. Issuer authorization and key lifecycle
 
-The Trust Store provides key resolution and role metadata, but a role string is only a local trust decision. The trust-store digest and the authorization-policy digest MUST be pinned independently of the event stream, or delivered over an authenticated administrative channel. A policy update MUST be authorized by a separately configured policy authority or approved out of band; an event cannot grant its own issuer authority. The event verifier must apply policy to the exact combination of:
+The Trust Store provides key resolution and role metadata, but a role string is only a local trust decision. The trust-store digest and authorization-policy digest MUST be pinned independently of the event stream, or delivered over an authenticated administrative channel. A policy update MUST be authorized by a separately configured policy authority or approved out of band; an event cannot grant its own issuer authority.
+
+The event verifier must apply policy to the exact combination of:
 - trusted key ID and key material;
 - issuer role;
 - subject and stream scope;
@@ -161,7 +174,7 @@ A key authorized to sign receipts is not automatically authorized to report depe
 
 Key rotation must use a new key ID and key material. Historical verification must retain the relevant trust-store snapshots, exact digests, and policy versions. A current trust-store status cannot by itself prove the historical status of a key.
 
-A `KEY_STATUS_CHANGED` event is only a signed assertion until validated under a separately defined authority and policy. Revocation requires an authorized revocation authority, explicit scope, reason semantics, effective-time rules, and trusted time or a clearly stated conservative policy. An ordinary dependency-change event MUST NOT imply revocation.
+Revocation requires an authorized revocation authority, explicit scope, reason semantics, effective-time rules, and trusted time or a clearly stated conservative policy. A key-status assertion inside the change stream cannot revoke a key. An ordinary dependency-change event MUST NOT imply revocation.
 
 ## 10. Time semantics
 
@@ -176,15 +189,16 @@ When trusted time is absent and historical key status matters, the result is IND
 The event layer must not replace EVC's deterministic comparison.
 
 Proposed processing sequence:
-1. Verify event syntax, canonical hash, and stream linkage.
-2. Verify signature against independently pinned trust material.
-3. Apply issuer authorization policy.
-4. Validate required external checkpoint and trusted-time evidence.
-5. Derive a candidate current-state snapshot from authorized dependency-change events.
-6. Compare that snapshot with the EVC graph and evaluate claim-scoped freshness.
-7. Report EVC freshness separately from event authenticity, issuer authorization, checkpoint status, and time status.
+1. Load the baseline dependency snapshot and its provenance; do not assume the first event creates a complete baseline.
+2. Verify event syntax, canonical hash, and stream linkage.
+3. Verify signature against independently pinned trust material.
+4. Apply independently pinned issuer authorization policy.
+5. Validate required external checkpoint receipts and their observation/coverage policy; validate trusted-time evidence separately if required.
+6. Derive a candidate current-state snapshot only from authorized events within a verified, policy-acceptable, coverage-bounded stream.
+7. Compare that snapshot with the EVC graph and evaluate claim-scoped freshness.
+8. Report EVC freshness separately from event authenticity, issuer authorization, checkpoint coverage, and time status.
 
-A consumer MUST NOT mark a dependency as authoritatively changed solely because an unauthenticated event says so. If the baseline is missing, the stream has an unresolved gap/fork, checkpoint coverage is insufficient, or the event source cannot establish completeness to the level required by policy, the resulting current state MUST be INDETERMINATE rather than inferred complete. A valid signature and checkpoint do not prove the factual correctness of the asserted dependency digest; deployments may require an independent measurement/attestation source.
+A consumer MUST NOT mark a dependency as authoritatively changed solely because an unauthenticated event says so. If the baseline is missing, the stream has an unresolved gap/fork, checkpoint coverage is insufficient, or the event source cannot establish completeness to the level required by policy, the resulting current state MUST be INDETERMINATE rather than inferred complete. A valid signature and checkpoint do not prove the factual correctness of the asserted dependency digest; deployments may require an independent measurement or attestation source.
 
 The event stream must not silently mutate a historical EVC graph or overwrite an earlier evaluation. New observations produce new graph snapshots and new evaluation records.
 
