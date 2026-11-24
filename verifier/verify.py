@@ -145,9 +145,8 @@ def create_receipt(bundle_path: str | Path, receipt_path: str | Path, created_at
     return receipt
 
 
-def verify_files(bundle_path: str | Path, receipt_path: str | Path) -> dict[str, Any]:
-    bundle_bytes = Path(bundle_path).read_bytes()
-    receipt_bytes = Path(receipt_path).read_bytes()
+def verify_bytes(bundle_bytes: bytes, receipt_bytes: bytes) -> dict[str, Any]:
+    """Verify exact bundle and receipt bytes without filesystem access."""
     bundle = _load_json(bundle_bytes, "bundle")
     receipt = _load_json(receipt_bytes, "receipt")
     validate_bundle(bundle)
@@ -167,6 +166,13 @@ def verify_files(bundle_path: str | Path, receipt_path: str | Path) -> dict[str,
         "checks": checks,
         "meaning": "Bundle and receipt hashes match. This is an integrity check, not proof of identity or trusted time.",
     }
+
+
+def verify_files(bundle_path: str | Path, receipt_path: str | Path) -> dict[str, Any]:
+    return verify_bytes(
+        Path(bundle_path).read_bytes(),
+        Path(receipt_path).read_bytes(),
+    )
 
 
 def main() -> int:
