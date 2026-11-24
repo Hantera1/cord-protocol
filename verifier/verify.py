@@ -65,13 +65,16 @@ def canonical_json(bundle: dict[str, Any]) -> bytes:
     Core v0.1 fields are strings only, avoiding cross-language number-format
     ambiguity. Duplicate keys are rejected during parsing.
     """
-    return json.dumps(
-        bundle,
-        ensure_ascii=False,
-        separators=(",", ":"),
-        sort_keys=True,
-        allow_nan=False,
-    ).encode("utf-8")
+    try:
+        return json.dumps(
+            bundle,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+            allow_nan=False,
+        ).encode("utf-8")
+    except UnicodeEncodeError as exc:
+        raise CordValidationError("bundle contains invalid Unicode surrogate data") from exc
 
 
 def sha256(data: bytes) -> str:
