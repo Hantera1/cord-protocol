@@ -5,7 +5,7 @@ This example demonstrates dependency-freshness evaluation only.
 Run from the repository root:
 
 ```bash
-python -m unittest tests.test_evc -v
+python -m unittest discover -s tests -p 'test_evc.py' -v
 ```
 
 The library API:
