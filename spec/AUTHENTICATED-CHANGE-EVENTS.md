@@ -107,9 +107,9 @@ Proposed direction:
 
 Proposed formulas:
 
-`event_hash = SHA256(UTF8("CORD-CHANGE-EVENT-HASH\\0v0.1\\0") || JCS(event_body))`
+`event_hash = SHA256(UTF8("CORD-CHANGE-EVENT-HASH") || 0x00 || UTF8("v0.1") || 0x00 || JCS(event_body))`
 
-`signature = Ed25519.Sign(private_key, UTF8("CORD-CHANGE-EVENT-SIGNATURE\\0v0.1\\0") || raw_32_byte_event_hash)`
+`signature = Ed25519.Sign(private_key, UTF8("CORD-CHANGE-EVENT-SIGNATURE") || 0x00 || UTF8("v0.1") || 0x00 || raw_32_byte_event_hash)`
 
 The detached signature envelope should contain exactly the version, algorithm, issuer key ID, and Base64 signature. The verifier MUST resolve the public key from independently configured trust material, never from the event package alone.
 
