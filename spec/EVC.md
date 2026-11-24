@@ -26,7 +26,7 @@ The top-level JSON object MUST contain exactly:
 - \`evidence\`: array of evidence references;
 - \`dependencies\`: array linking claims to dependency objects.
 
-All identifiers and descriptive strings MUST be non-empty, trimmed strings. SHA-256 values MUST be 64 lowercase hexadecimal characters. Duplicate IDs, duplicate state keys, duplicate dependency triples, unknown references, unknown dependency types, and unknown object fields MUST be rejected.
+All identifiers and descriptive strings MUST be non-empty, trimmed strings. Leading or trailing whitespace is rejected using this explicit set: U+0009–U+000D, U+001C–U+0020, U+0085, U+00A0, U+1680, U+2000–U+200A, U+2028–U+2029, U+202F, U+205F, and U+3000. SHA-256 values MUST be 64 lowercase hexadecimal characters. Duplicate IDs, duplicate state keys, duplicate dependency triples, unknown references, unknown dependency types, and unknown object fields MUST be rejected.
 
 ### 3.1 Subject
 
