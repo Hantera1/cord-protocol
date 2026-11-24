@@ -103,7 +103,7 @@ class StrictParser {
     return fail("Invalid JSON value");
   }
   private object(): Dict {
-    this.i++; this.ws(); const out: Dict = {};
+    this.i++; this.ws(); const out: Dict = Object.create(null) as Dict;
     if (this.s[this.i] === "}") { this.i++; return out; }
     while (true) {
       this.ws(); if (this.s[this.i] !== '"') fail("JSON object key must be a string");
@@ -166,7 +166,7 @@ function validate(g: Graph) {
     exactFields(s, STATE, "current_state[" + i + "]");
     if (!nonempty(s.type) || !DEPENDENCY_TYPES.has(s.type)) fail("current_state[" + i + "].type is unsupported");
     id(s.object_id, "current_state[" + i + "].object_id"); digest(s.sha256, "current_state[" + i + "].sha256");
-    const k = s.type + "\u0000" + s.object_id;
+    const k = JSON.stringify([s.type, s.object_id]);
     if (current.has(k)) fail("Duplicate current_state entry: " + s.type + ":" + s.object_id);
     current.set(k, s.sha256);
   });
@@ -179,7 +179,7 @@ function validate(g: Graph) {
     if (!nonempty(d.claim_id) || !claims.has(d.claim_id)) fail("dependencies[" + i + "] references unknown claim");
     if (!nonempty(d.type) || !DEPENDENCY_TYPES.has(d.type)) fail("dependencies[" + i + "].type is unsupported");
     id(d.object_id, "dependencies[" + i + "].object_id"); digest(d.expected_sha256, "dependencies[" + i + "].expected_sha256");
-    const k = d.claim_id + "\u0000" + d.type + "\u0000" + d.object_id;
+    const k = JSON.stringify([d.claim_id, d.type, d.object_id]);
     if (seen.has(k)) fail("Duplicate dependency: " + d.claim_id + ":" + d.type + ":" + d.object_id);
     seen.add(k); byClaim.get(d.claim_id)!.push(d);
   });
@@ -191,7 +191,7 @@ function codePointCompare(a: string, b: string): number {
   return aa.length - bb.length;
 }
 function stable(value: unknown): string {
-  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (value === null || typeof value !== "object") { const encoded = JSON.stringify(value); if (encoded === undefined) fail("Value cannot be represented in canonical JSON"); return encoded; }
   if (Array.isArray(value)) return "[" + value.map(stable).join(",") + "]";
   const o = value as Dict;
   return "{" + Object.keys(o).sort(codePointCompare).map(k => JSON.stringify(k) + ":" + stable(o[k])).join(",") + "}";
@@ -205,7 +205,7 @@ export function evaluateGraph(g: Graph) {
     const deps = [...byClaim.get(claimId)!].sort((a,b) => codePointCompare(a.type,b.type) || codePointCompare(a.object_id,b.object_id));
     if (!deps.length) { indeterminate = true; reasons.push("NO_DEPENDENCIES_DECLARED"); }
     for (const d of deps) {
-      const k = d.type + "\u0000" + d.object_id; const observed = current.get(k);
+      const k = JSON.stringify([d.type, d.object_id]); const observed = current.get(k);
       if (observed === undefined) { indeterminate = true; reasons.push("CURRENT_STATE_MISSING:" + d.type + ":" + d.object_id); }
       else if (observed !== d.expected_sha256) { stale = true; reasons.push("DEPENDENCY_CHANGED:" + d.type + ":" + d.object_id); }
     }
