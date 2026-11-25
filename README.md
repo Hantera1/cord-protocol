@@ -52,6 +52,7 @@ python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/rec
 - [Project Charter](docs/PROJECT-CHARTER.md)
 - [Completion Roadmap](docs/ROADMAP.md)
 - [Security Model](docs/SECURITY-MODEL.md)
+- [CORD Full-System Assurance Agent (architecture proposal)](docs/CORD-FULL-SYSTEM-ASSURANCE.md)
 - [Luxury Asset Verification Profile (proposed)](spec/LUXURY-ASSET-VERIFICATION.md)
 - [Application Portfolio and Reserved Use Cases](spec/APPLICATION-PORTFOLIO.md)
 - [Clock Verification Profile (proposed)](spec/CLOCK-VERIFICATION.md)
