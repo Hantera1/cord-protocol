@@ -116,6 +116,11 @@ def sha256(data: bytes) -> str:
 
 
 def _validate_fields(obj: dict[str, Any], expected: set[str], label: str) -> None:
+    for key in obj:
+        try:
+            key.encode("utf-8", errors="strict")
+        except UnicodeEncodeError as exc:
+            raise CordValidationError(f"{label} contains an invalid Unicode field name") from exc
     actual = set(obj)
     missing = sorted(expected - actual)
     extra = sorted(actual - expected)
@@ -129,6 +134,10 @@ def _validate_fields(obj: dict[str, Any], expected: set[str], label: str) -> Non
     for key, value in obj.items():
         if not isinstance(value, str):
             raise CordValidationError(f"{label}.{key} must be a string")
+        try:
+            value.encode("utf-8", errors="strict")
+        except UnicodeEncodeError as exc:
+            raise CordValidationError(f"{label}.{key} contains invalid Unicode") from exc
 
 
 def _validate_timestamp(value: str, field: str) -> None:
