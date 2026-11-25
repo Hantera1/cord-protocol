@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from verifier.verify import CordValidationError, create_receipt, verify_files
+from verifier.verify import MAX_FILE_BYTES, CordValidationError, create_receipt, verify_files
 
 BUNDLE = {
     "spec_version": "0.1",
@@ -27,6 +27,23 @@ class CordVerifierTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+
+    def test_oversized_bundle_is_rejected_before_full_read(self):
+        self.bundle.write_bytes(b" " * (MAX_FILE_BYTES + 1))
+        with self.assertRaisesRegex(CordValidationError, "bundle exceeds"):
+            verify_files(self.bundle, self.receipt)
+
+    def test_oversized_receipt_is_rejected(self):
+        self.receipt.write_bytes(b" " * (MAX_FILE_BYTES + 1))
+        with self.assertRaisesRegex(CordValidationError, "receipt exceeds"):
+            verify_files(self.bundle, self.receipt)
+
+    def test_excessive_json_nesting_is_rejected(self):
+        nested = b'{"x":' + b"[" * MAX_FILE_BYTES.__class__(64) + b"0" + b"]" * 64 + b"}"
+        self.bundle.write_bytes(nested)
+        with self.assertRaisesRegex(CordValidationError, "nesting depth"):
+            verify_files(self.bundle, self.receipt)
 
     def test_valid_package_passes(self):
         self.assertEqual(verify_files(self.bundle, self.receipt)["status"], "PASS")
