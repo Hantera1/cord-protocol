@@ -1,0 +1,28 @@
+{
+  "taxonomy_version": "0.1",
+  "scope": "Global starter taxonomy; not a legal classification",
+  "categories": [
+    {"code":"FOOD.FRUIT","name_en":"Fruit"},
+    {"code":"FOOD.VEGETABLES","name_en":"Vegetables"},
+    {"code":"FOOD.GRAINS_CEREALS","name_en":"Grains and cereals"},
+    {"code":"FOOD.BAKERY","name_en":"Bakery"},
+    {"code":"FOOD.MEAT","name_en":"Meat"},
+    {"code":"FOOD.MEAT_PRODUCTS","name_en":"Processed meat"},
+    {"code":"FOOD.FISH_SEAFOOD","name_en":"Fish and seafood"},
+    {"code":"FOOD.DAIRY","name_en":"Dairy"},
+    {"code":"FOOD.EGGS","name_en":"Eggs and egg products"},
+    {"code":"FOOD.LEGUMES_NUTS_SEEDS","name_en":"Legumes, nuts and seeds"},
+    {"code":"FOOD.OILS_FATS","name_en":"Oils and fats"},
+    {"code":"FOOD.READY_MEALS","name_en":"Prepared meals"},
+    {"code":"FOOD.SAUCES_CONDIMENTS","name_en":"Sauces and condiments"},
+    {"code":"FOOD.SNACKS","name_en":"Snacks"},
+    {"code":"FOOD.SWEETS_CHOCOLATE","name_en":"Sweets and chocolate"},
+    {"code":"FOOD.BEVERAGES","name_en":"Beverages"},
+    {"code":"FOOD.PLANT_BASED_ALTERNATIVES","name_en":"Plant-based alternatives"},
+    {"code":"FOOD.BABY_FOOD","name_en":"Baby food"},
+    {"code":"FOOD.SUPPLEMENTS","name_en":"Food supplements"},
+    {"code":"FOOD.SPECIAL_DIET","name_en":"Special dietary foods"},
+    {"code":"FOOD.INGREDIENTS_RAW","name_en":"Cooking ingredients and raw foods"},
+    {"code":"FOOD.OTHER","name_en":"Other food products"}
+  ]
+}
