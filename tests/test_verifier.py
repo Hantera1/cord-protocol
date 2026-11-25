@@ -69,14 +69,14 @@ class CordVerifierTests(unittest.TestCase):
 
     def test_unpaired_surrogate_in_field_value_is_rejected(self):
         self.bundle.write_text(
-            json.dumps(dict(BUNDLE, model_id="\\ud800")),
+            json.dumps(dict(BUNDLE, model_id="\ud800")),
             encoding="utf-8",
         )
         with self.assertRaisesRegex(CordValidationError, "invalid Unicode"):
             verify_files(self.bundle, self.receipt)
 
     def test_unpaired_surrogate_in_field_name_is_rejected(self):
-        self.bundle.write_text('{"\\ud800":"value"}', encoding="utf-8")
+        self.bundle.write_text('{"\ud800":"value"}', encoding="utf-8")
         with self.assertRaisesRegex(CordValidationError, "invalid Unicode field name"):
             verify_files(self.bundle, self.receipt)
 
