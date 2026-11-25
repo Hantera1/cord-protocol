@@ -1,0 +1,112 @@
+version: "0.1"
+policy:
+  default_reuse: review_required
+  default_image_reuse: separate_review_required
+  api_access_does_not_imply_bulk_reuse: true
+  preserve_source_attribution: true
+  preserve_source_record_id: true
+  preserve_retrieval_timestamp: true
+  isolate_share_alike_datasets: true
+  legal_review_required_before_production: true
+licences:
+  - id: CC0-1.0
+    name: Creative Commons CC0 1.0
+    class: public_domain
+    status: approved_subject_to_source_terms
+  - id: ODbL-1.0
+    name: Open Database License 1.0
+    class: share_alike
+    obligations: [attribution, share_alike_for_derivative_database, review_extraction_terms]
+    status: isolated_domain_legal_review_required
+  - id: DbCL-1.0
+    name: Database Contents License 1.0
+    class: share_alike
+    status: isolated_domain_legal_review_required
+  - id: CC-BY-SA
+    name: Creative Commons Attribution ShareAlike
+    class: share_alike
+    obligations: [attribution, share_alike, exact_version_and_asset_check]
+    status: asset_level_review_required
+  - id: CONTRACTUAL
+    name: Source-specific contractual terms
+    class: contractual
+    status: review_required
+  - id: UNKNOWN
+    name: Unknown or unconfirmed licence
+    class: unknown
+    status: blocked
+sources:
+  - source_key: open_food_facts
+    name: Open Food Facts
+    type: open_database
+    uri: https://world.openfoodfacts.org/
+    api: https://openfoodfacts.github.io/documentation/docs/Product-Opener/api/
+    coverage: Global community-contributed packaged food products
+    data_licences: [ODbL-1.0, DbCL-1.0]
+    image_licence: CC-BY-SA
+    api_version: v3
+    reuse: isolated_share_alike_domain
+    quality: Community-contributed; accuracy and completeness are not guaranteed
+    priority: 1
+  - source_key: usda_fooddata_central
+    name: USDA FoodData Central
+    type: government
+    uri: https://fdc.nal.usda.gov/
+    api: https://fdc.nal.usda.gov/api-guide/
+    coverage: US branded and reference food composition data
+    data_licence: CC0-1.0
+    reuse: cc0_domain
+    quality: Preserve dataset type and FDC identifier; reference composition is not the same as a retail label
+    priority: 1
+  - source_key: fao_infoods
+    name: FAO INFOODS
+    type: intergovernmental
+    uri: https://www.fao.org/infoods/tables-and-databases
+    coverage: Directory and selected national and regional food composition datasets
+    licence: CONTRACTUAL
+    reuse: per_dataset_review
+    quality: Directory inclusion is not a blanket reuse licence for each linked dataset
+    priority: 2
+  - source_key: eu_food_additives
+    name: European Commission Food Additives Database
+    type: government
+    uri: https://food.ec.europa.eu/food-safety/food-improvement-agents/additives/database_en
+    coverage: EU additive approvals and conditions of use
+    licence: CONTRACTUAL
+    reuse: regulatory_reference_review
+    quality: EU jurisdiction-specific status, not a universal safety score
+    priority: 1
+  - source_key: eu_pesticides_mrl
+    name: European Commission Pesticides Database
+    type: government
+    uri: https://food.ec.europa.eu/horizontal-topics/eu-food-safety-databases-and-other-online-services_en
+    coverage: EU active substances and maximum residue levels
+    licence: CONTRACTUAL
+    reuse: regulatory_reference_review
+    quality: An MRL is a legal limit, not evidence that a particular product contains a residue
+    priority: 2
+  - source_key: gs1_epcis
+    name: GS1 EPCIS and CBV
+    type: standards_body
+    uri: https://ref.gs1.org/standards/epcis/
+    coverage: Supply-chain event interoperability
+    licence: CONTRACTUAL
+    reuse: standard_implementation
+    quality: Traceability event standard, not a product-content database
+    priority: 2
+  - source_key: manufacturer_direct
+    name: Manufacturer direct submission
+    type: manufacturer
+    coverage: Formula, ingredient specifications, facilities, batches, production and certificates
+    licence: CONTRACTUAL
+    reuse: permission_and_contract_required
+    quality: Manufacturer-declared until independently corroborated
+    priority: 1
+  - source_key: laboratory_direct
+    name: Laboratory submissions
+    type: laboratory
+    coverage: Product and batch-specific analytical results
+    licence: CONTRACTUAL
+    reuse: permission_and_contract_required
+    quality: Require sample identity, method, detection limits, units, sampling date and accreditation scope
+    priority: 2
