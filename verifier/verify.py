@@ -17,6 +17,7 @@ from typing import Any
 
 SPEC_VERSION = "0.1"
 MAX_FILE_BYTES = 1_048_576
+MAX_JSON_DEPTH = 64
 BUNDLE_FIELDS = {
     "spec_version", "model_id", "timestamp", "policy_id",
     "input_hash", "output_hash",
@@ -40,11 +41,47 @@ def _unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     return result
 
 
+def _read_bounded_file(path: str | Path, label: str) -> bytes:
+    """Read at most MAX_FILE_BYTES + 1 bytes before rejecting oversized input."""
+    with Path(path).open("rb") as handle:
+        data = handle.read(MAX_FILE_BYTES + 1)
+    if len(data) > MAX_FILE_BYTES:
+        raise CordValidationError(f"{label} exceeds {MAX_FILE_BYTES} bytes")
+    return data
+
+
+def _check_json_nesting(text: str, label: str) -> None:
+    """Reject excessive container nesting before invoking the recursive JSON parser."""
+    depth = 0
+    in_string = False
+    escaped = False
+    for char in text:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            continue
+        if char == '"':
+            in_string = True
+        elif char in "[{":
+            depth += 1
+            if depth > MAX_JSON_DEPTH:
+                raise CordValidationError(
+                    f"{label} exceeds maximum JSON nesting depth of {MAX_JSON_DEPTH}"
+                )
+        elif char in "]}":
+            depth -= 1
+
+
 def _load_json(data: bytes, label: str) -> dict[str, Any]:
     if len(data) > MAX_FILE_BYTES:
         raise CordValidationError(f"{label} exceeds {MAX_FILE_BYTES} bytes")
     try:
         text = data.decode("utf-8", errors="strict")
+        _check_json_nesting(text, label)
         value = json.loads(
             text,
             object_pairs_hook=_unique_object,
@@ -52,7 +89,7 @@ def _load_json(data: bytes, label: str) -> dict[str, Any]:
                 CordValidationError(f"invalid JSON constant: {value}")
             ),
         )
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+    except (UnicodeDecodeError, json.JSONDecodeError, RecursionError) as exc:
         raise CordValidationError(f"{label} is not valid UTF-8 JSON: {exc}") from exc
     if not isinstance(value, dict):
         raise CordValidationError(f"{label} must be a JSON object")
@@ -79,6 +116,11 @@ def sha256(data: bytes) -> str:
 
 
 def _validate_fields(obj: dict[str, Any], expected: set[str], label: str) -> None:
+    for key in obj:
+        try:
+            key.encode("utf-8", errors="strict")
+        except UnicodeEncodeError as exc:
+            raise CordValidationError(f"{label} contains an invalid Unicode field name") from exc
     actual = set(obj)
     missing = sorted(expected - actual)
     extra = sorted(actual - expected)
@@ -92,6 +134,10 @@ def _validate_fields(obj: dict[str, Any], expected: set[str], label: str) -> Non
     for key, value in obj.items():
         if not isinstance(value, str):
             raise CordValidationError(f"{label}.{key} must be a string")
+        try:
+            value.encode("utf-8", errors="strict")
+        except UnicodeEncodeError as exc:
+            raise CordValidationError(f"{label}.{key} contains invalid Unicode") from exc
 
 
 def _validate_timestamp(value: str, field: str) -> None:
@@ -128,7 +174,7 @@ def validate_receipt(receipt: dict[str, Any]) -> None:
 
 
 def create_receipt(bundle_path: str | Path, receipt_path: str | Path, created_at: str) -> dict[str, str]:
-    bundle_bytes = Path(bundle_path).read_bytes()
+    bundle_bytes = _read_bounded_file(bundle_path, "bundle")
     bundle = _load_json(bundle_bytes, "bundle")
     validate_bundle(bundle)
     _validate_timestamp(created_at, "created_at")
@@ -146,8 +192,8 @@ def create_receipt(bundle_path: str | Path, receipt_path: str | Path, created_at
 
 
 def verify_files(bundle_path: str | Path, receipt_path: str | Path) -> dict[str, Any]:
-    bundle_bytes = Path(bundle_path).read_bytes()
-    receipt_bytes = Path(receipt_path).read_bytes()
+    bundle_bytes = _read_bounded_file(bundle_path, "bundle")
+    receipt_bytes = _read_bounded_file(receipt_path, "receipt")
     bundle = _load_json(bundle_bytes, "bundle")
     receipt = _load_json(receipt_bytes, "receipt")
     validate_bundle(bundle)

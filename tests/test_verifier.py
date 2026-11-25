@@ -1,9 +1,10 @@
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
-from verifier.verify import CordValidationError, create_receipt, verify_files
+from verifier.verify import MAX_FILE_BYTES, MAX_JSON_DEPTH, CordValidationError, _read_bounded_file, create_receipt, verify_files
 
 BUNDLE = {
     "spec_version": "0.1",
@@ -27,6 +28,57 @@ class CordVerifierTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+
+    def test_reader_requests_only_limit_plus_one_bytes(self):
+        class ReadSpy:
+            requested_size = None
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+            def read(self, size):
+                self.requested_size = size
+                return b"x" * size
+
+        reader = ReadSpy()
+        with mock.patch.object(Path, "open", return_value=reader):
+            with self.assertRaisesRegex(CordValidationError, "bundle exceeds"):
+                _read_bounded_file(self.bundle, "bundle")
+        self.assertEqual(reader.requested_size, MAX_FILE_BYTES + 1)
+
+    def test_oversized_bundle_is_rejected_before_full_read(self):
+        self.bundle.write_bytes(b" " * (MAX_FILE_BYTES + 1))
+        with self.assertRaisesRegex(CordValidationError, "bundle exceeds"):
+            verify_files(self.bundle, self.receipt)
+
+    def test_oversized_receipt_is_rejected(self):
+        self.receipt.write_bytes(b" " * (MAX_FILE_BYTES + 1))
+        with self.assertRaisesRegex(CordValidationError, "receipt exceeds"):
+            verify_files(self.bundle, self.receipt)
+
+    def test_excessive_json_nesting_is_rejected(self):
+        nested = b'{"x":' + b"[" * (MAX_JSON_DEPTH + 1) + b"0" + b"]" * (MAX_JSON_DEPTH + 1) + b"}"
+        self.bundle.write_bytes(nested)
+        with self.assertRaisesRegex(CordValidationError, "nesting depth"):
+            verify_files(self.bundle, self.receipt)
+
+
+    def test_unpaired_surrogate_in_field_value_is_rejected(self):
+        self.bundle.write_text(
+            json.dumps(dict(BUNDLE, model_id="\ud800")),
+            encoding="utf-8",
+        )
+        with self.assertRaisesRegex(CordValidationError, "invalid Unicode"):
+            verify_files(self.bundle, self.receipt)
+
+    def test_unpaired_surrogate_in_field_name_is_rejected(self):
+        self.bundle.write_bytes(b'{"' + b"\\u" + b'd800":"value"}')
+        with self.assertRaisesRegex(CordValidationError, "invalid Unicode field name"):
+            verify_files(self.bundle, self.receipt)
 
     def test_valid_package_passes(self):
         self.assertEqual(verify_files(self.bundle, self.receipt)["status"], "PASS")
