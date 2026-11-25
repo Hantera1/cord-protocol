@@ -1,9 +1,10 @@
 import json
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
-from verifier.verify import MAX_FILE_BYTES, MAX_JSON_DEPTH, CordValidationError, create_receipt, verify_files
+from verifier.verify import MAX_FILE_BYTES, MAX_JSON_DEPTH, CordValidationError, _read_bounded_file, create_receipt, verify_files
 
 BUNDLE = {
     "spec_version": "0.1",
@@ -27,6 +28,27 @@ class CordVerifierTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+
+    def test_reader_requests_only_limit_plus_one_bytes(self):
+        class ReadSpy:
+            requested_size = None
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, exc_type, exc, traceback):
+                return False
+
+            def read(self, size):
+                self.requested_size = size
+                return b"x" * size
+
+        reader = ReadSpy()
+        with mock.patch.object(Path, "open", return_value=reader):
+            with self.assertRaisesRegex(CordValidationError, "bundle exceeds"):
+                _read_bounded_file(self.bundle, "bundle")
+        self.assertEqual(reader.requested_size, MAX_FILE_BYTES + 1)
 
     def test_oversized_bundle_is_rejected_before_full_read(self):
         self.bundle.write_bytes(b" " * (MAX_FILE_BYTES + 1))
