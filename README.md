@@ -134,6 +134,14 @@ Voluntary donations support ongoing development. Donations do not buy protocol p
 - **Ethereum (ETH):** `0x3d6344fc57ba0039429bdf78dd7ca734c42195b9`
 - **Bitcoin (BTC):** `bc1q8qtrmfmq53smfhzp8s6p9er080z66zvzae9f38`
 
+## About the creator
+
+CORD was initiated by **KentPH**, an independent project creator working to develop an open, vendor-neutral approach to digital evidence and verification.
+
+The project reflects a simple principle: a useful verification foundation should be understandable, independently inspectable and open to implementation by others. CORD is being developed in public, with an emphasis on clear specifications, explicit security boundaries and honest communication about what the technology can — and cannot — prove.
+
+KentPH leads the project's direction and invites technical review, constructive criticism and collaboration from people working in cryptography, secure software and protocol engineering.
+
 ## Origin and license
 
 **CORD by Hantera · Created by KentPH**
