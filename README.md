@@ -1,24 +1,48 @@
 <p align="center">
-  <img src="logo.png.PNG" alt="Cord Logo" width="400">
+  <img src="logo.png.PNG" alt="CORD logo" width="320">
 </p>
 
-# CORD
+<h1 align="center">CORD</h1>
 
-**An open protocol by Hantera · Created by KentPH**
+<p align="center">
+  <strong>Open evidence formats. Independent verification.</strong>
+</p>
 
-Cord is an open, vendor-neutral protocol draft for creating and independently verifying cryptographic evidence about AI events.
+<p align="center">
+  An open, vendor-neutral protocol draft by Hantera · Created by KentPH
+</p>
 
-## What Core v0.1 does
+---
 
-Cord Core uses a `bundle.json` and a `receipt.json`. The verifier checks the bundle schema, canonical bundle hash, and exact bundle-file hash. Verification is offline.
+## Overview
 
-A PASS means the supplied bundle is valid under the supported Core version and its hashes match the supplied receipt. It does **not** prove who created the files, that the declared AI model generated the output, or that the timestamp is trusted. An attacker who can replace both files can create a new matching pair. See the [Security Model](docs/SECURITY-MODEL.md).
+CORD is an open protocol project for creating, packaging and independently verifying cryptographic evidence about digital events, including AI-related events.
 
-> **Status: Experimental draft (v0.1).** Do not use as a production security certification. The specification and reference implementation are being developed and need independent review.
+The project is designed around a small, implementation-neutral Core, with optional extensions and application profiles developed separately. Evidence can be inspected and verified offline; a CORD account or hosted service is not required for Core verification.
+
+**Current release status:** Experimental draft, Core v0.1. The specification and reference implementation are under development and require independent review. CORD is not a production security certification.
+
+## What Core v0.1 verifies
+
+A Core evidence package contains two files:
+
+- `bundle.json` — the evidence bundle.
+- `receipt.json` — the receipt containing the expected hashes.
+
+The reference verifier checks the bundle structure, its canonical hash, and the hash of the exact bundle file. Verification is performed offline.
+
+A **PASS** means that the supplied files are internally consistent under the supported Core version. It does not establish:
+
+- who created the files;
+- whether a particular AI model actually generated the declared output;
+- whether the declared timestamp is trustworthy;
+- whether the evidence is complete, truthful, safe or legally compliant.
+
+If an attacker can replace both the bundle and its receipt, they can create a new matching pair. Read the [Security Model](docs/SECURITY-MODEL.md) before relying on a verification result.
 
 ## Quick start
 
-Python 3.10 or later for Core; the optional signature and Trust Store extensions require the dependencies in `requirements.txt`.
+**Requirements:** Python 3.10 or later for Core verification. Optional extensions may require additional dependencies listed in `requirements.txt`.
 
 Create a receipt for a valid bundle:
 
@@ -26,55 +50,95 @@ Create a receipt for a valid bundle:
 python verifier/verify.py create bundle.json receipt.json --created-at 2026-03-06T12:00:05Z
 ```
 
-Verify the evidence package:
+Verify the package:
 
 ```bash
 python verifier/verify.py verify bundle.json receipt.json
 ```
 
-The verifier prints JSON. It exits with code `0` on success and `1` on invalid input or a failed check.
-
-Run the automated tests:
+Run the test suite:
 
 ```bash
 python -m unittest discover -s tests -v
 ```
 
-Try the fixed test vector:
+Verify the fixed test vector:
 
 ```bash
 python verifier/verify.py verify test-vectors/bundle_valid.json test-vectors/receipt_valid.json
 ```
 
-## Core formats
+The verifier outputs JSON and returns exit code `0` on success or `1` when input is invalid or a check fails.
 
-- [Cord Core Formats v0.1](spec/FORMATS.md)
-- [Project Charter](docs/PROJECT-CHARTER.md)
-- [Completion Roadmap](docs/ROADMAP.md)
+## Project structure
+
+| Area | Purpose | Status |
+|---|---|---|
+| CORD Core v0.1 | Canonical evidence bundle and receipt formats; offline hash verification | Experimental draft |
+| Signed Receipt | Ed25519 signatures for receipts | Experimental extension |
+| Trust Store | Local, pinned trust configuration and signer-role checks | Experimental extension |
+| Trusted Timestamp | RFC 3161 timestamp validation profile | Experimental extension |
+| Event Chain | Hash-linked sequence of evidence events | Experimental extension |
+| Application Profiles | Domain-specific evidence requirements | Proposed / in development |
+
+Core is intentionally kept separate from extensions. Experimental extensions do not change the meaning or guarantees of Core PASS.
+
+## Specifications and documentation
+
+### Core and security
+
+- [CORD Core Formats v0.1](spec/FORMATS.md)
 - [Security Model](docs/SECURITY-MODEL.md)
-- [Luxury Asset Verification Profile (proposed)](spec/LUXURY-ASSET-VERIFICATION.md)
+- [Project Charter](docs/PROJECT-CHARTER.md)
+- [Development Roadmap](docs/ROADMAP.md)
+
+### Experimental extensions
+
+- [Ed25519 Signed Receipt](spec/SIGNED-RECEIPT.md)
+- [Offline Trust Store v0.1](spec/TRUST-STORE.md)
+- [RFC 3161 Trusted Timestamp Profile](spec/RFC3161-TIMESTAMP.md)
+- [Receipt Event Chain](spec/EVENT-CHAIN.md)
+
+### Application profiles and schemas
+
 - [Application Portfolio and Reserved Use Cases](spec/APPLICATION-PORTFOLIO.md)
-- [Clock Verification Profile (proposed)](spec/CLOCK-VERIFICATION.md)
-- [Application Profile Manifest and Verification Model (proposed)](spec/PROFILE-MANIFEST.md)
+- [Luxury Asset Verification Profile — proposed](spec/LUXURY-ASSET-VERIFICATION.md)
+- [Clock Verification Profile — proposed](spec/CLOCK-VERIFICATION.md)
+- [Application Profile Manifest — proposed](spec/PROFILE-MANIFEST.md)
 - [Profile Manifest JSON Schema 0.1](schemas/profile-manifest-0.1.schema.json)
-- [Contributing](CONTRIBUTING.md)
-- [Security Policy](SECURITY.md)
+- [Trust Store JSON Schema](schemas/trust-store-0.1.schema.json)
+
+## Python integration
+
+A minimal Python helper is available at `sdk/python/cord_sdk.py`. See [the Python quick-start example](examples/python_quickstart.py).
+
+The signed-receipt, Trust Store, timestamp and event-chain capabilities are experimental. For example, an event chain requires an independently retained checkpoint to detect replacement of the entire chain.
 
 ## Design principles
 
-- Open and implementation-neutral.
-- Offline verification; no Cord account or server required.
-- Strict schemas and deterministic test vectors.
-- Vendor-neutral integrations.
-- Signatures and trusted timestamps are separate future extensions, not implied by Core PASS.
+- **Open and vendor-neutral:** the protocol is designed to be inspectable and implementable by independent parties.
+- **Offline Core verification:** no CORD account or hosted service is needed to verify a Core package.
+- **Explicit trust boundaries:** a cryptographic match is not presented as proof of identity, truth or real-world origin.
+- **Separation of concerns:** the Core remains small; extensions and domain-specific profiles are specified separately.
+- **Interoperability:** deterministic formats and test vectors support independent implementations.
 
 ## Contributing
 
-We welcome protocol reviews, independent implementations, verifier improvements, test vectors, SDKs, and integration examples. Please read [CONTRIBUTING.md](CONTRIBUTING.md) and open an issue before proposing significant protocol changes.
+Protocol reviews, independent implementations, verifier improvements, test vectors, SDKs and integration examples are welcome.
 
-## Support
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md). For significant protocol changes, open an issue or discussion before submitting a pull request.
 
-Voluntary donations support development and do not buy protocol privileges or influence verification results.
+## Origin and attribution
+
+**CORD by Hantera — created by KentPH.**
+
+CORD was initiated by Hantera and KentPH. The project is open for inspection, implementation, use and extension under its published license. Community contributions and independent implementations are welcome.
+
+Project creator: [KentPH / Hantera](https://github.com/Hantera1).
+
+## Support the project
+
+Voluntary donations can support continued development. Donations do not provide protocol privileges and do not influence verification results.
 
 **Ethereum (ETH)**
 
@@ -86,108 +150,4 @@ Voluntary donations support development and do not buy protocol privileges or in
 
 ## License
 
-Cord is published under the [Apache License 2.0](LICENSE).
-
-## Origin and attribution
-
-**CORD by Hantera — Created by KentPH.**
-
-Cord was initiated by Hantera and KentPH. The protocol is open for everyone to inspect, implement, use, and extend under the project license. Independent implementations and community contributions are welcome.
-
-Project creator: [KentPH / Hantera](https://github.com/Hantera1).
-
-
-## Python integration
-
-A minimal helper is available at `sdk/python/cord_sdk.py`; see
-`examples/python_quickstart.py`. Install the signing dependency with
-`python -m pip install -r requirements.txt`. The signed-receipt and
-event-chain extensions are experimental. A chain requires an externally
-retained checkpoint to detect full-chain replacement.
-
-## Experimental extensions
-
-- [Ed25519 signed receipt](spec/SIGNED-RECEIPT.md)
-- [Offline Trust Store v0.1](spec/TRUST-STORE.md)
-- [RFC 3161 Trusted Timestamp Profile (experimental)](spec/RFC3161-TIMESTAMP.md)
-- [Trust Store JSON Schema](schemas/trust-store-0.1.schema.json)
-- [Receipt event chain](spec/EVENT-CHAIN.md)
-
-### Verify a signed receipt with a pinned trust store
-
-The trust-store resolver is an experimental Python extension. Its SHA-256 pin
-must come from trusted local configuration, not from the evidence package.
-
-```python
-import json
-import os
-from verifier.trust_store import (
-    load_signed_receipt_inputs,
-    load_trust_store,
-    verify_signed_receipt_with_store,
-)
-
-# Obtain this digest through an independently trusted configuration channel.
-trust_store = load_trust_store(
-    "trust-store.json",
-    expected_sha256=os.environ["CORD_TRUST_STORE_SHA256"],
-)
-
-receipt, envelope = load_signed_receipt_inputs(
-    "receipt.json",
-    "receipt.signature.json",
-)
-
-result = verify_signed_receipt_with_store(
-    receipt,
-    envelope,
-    trust_store,
-    required_role="manufacturer",
-    # Keep None unless a separate trusted-time validator has validated the source.
-    trusted_signature_time=None,
-)
-print(json.dumps(result, indent=2))
-```
-
-Without independently validated trusted signing time, historical key validity
-is reported as `INDETERMINATE`; the producer-declared `receipt.created_at`
-is never treated as trusted signing time. The resolver does not validate RFC
-3161 tokens, establish civil identity, or prove the truth of signed claims.
-
-Core remains independent of these extensions. The extensions do not make CORD
-a production security certification.
-
-## RFC 3161 trusted timestamp verification (experimental)
-
-The experimental timestamp verifier validates an RFC 3161 DER/CMS token whose message imprint covers the exact raw 64-byte Ed25519 signature from a CORD Signed Receipt v0.1 envelope. It validates the TSA chain at the signed generation time and enforces the timestamping certificate purpose. SHA-256, SHA-384, and SHA-512 message-imprint algorithms are accepted.
-
-Example: load a locally pinned Trust Store, parse the receipt and detached envelope, then validate the TSA token and apply signer-key policy:
-
-```python
-import os
-from pathlib import Path
-
-from verifier.trust_store import load_trust_store, load_signed_receipt_inputs
-from verifier.trusted_timestamp import verify_signed_receipt_with_timestamp
-
-trust_store = load_trust_store(
-    "trust-store.json",
-    expected_sha256=os.environ["CORD_TRUST_STORE_SHA256"],
-)
-receipt, envelope = load_signed_receipt_inputs("receipt.json", "signature.json")
-
-result = verify_signed_receipt_with_timestamp(
-    receipt,
-    envelope,
-    trust_store,
-    Path("timestamp.tsr").read_bytes(),
-    tsa_ca_file="tsa-ca.pem",
-    required_role="manufacturer",
-    crl_file="tsa-ca.crl",
-    require_crl=True,
-)
-print(result["status"])
-```
-
-The TSA CA file, any intermediate certificates, and CRL are verifier-side trust inputs; never accept them solely from the evidence package. The composite result is `INDETERMINATE` when the token and signing-key checks pass but TSA revocation has not been checked. OCSP is not implemented. The profile and Python implementation are experimental and have not undergone independent security audit or third-party interoperability review. See [the RFC 3161 profile](spec/RFC3161-TIMESTAMP.md).
-
+CORD is published under the [Apache License 2.0](LICENSE).

@@ -79,25 +79,46 @@ A release should identify:
 - backward-compatibility expectations.
 
 
-## Current implementation status (2026-11-22)
+## Current implementation status (reviewed 2026-11-28)
 
-Implemented on main (experimental where noted):
-- Strict Python Core verifier and receipt creation CLI.
-- Deterministic Core v0.1 specification and fixed test vector.
-- GitHub Actions test workflow.
-- Experimental Ed25519 detached receipt signatures verified against an externally trusted/pinned public key.
-- Experimental receipt hash-chain helper with optional externally trusted head checkpoint.
-- Minimal Python SDK helper and end-to-end example.
+This section distinguishes capabilities present on `main` from work that exists only in open pull requests. An open pull request is not part of the default-branch release and MUST NOT be described as merged or generally available.
 
-Not yet production-ready:
-- No independent second-language implementation or interoperability vectors.
-- Experimental RFC 3161 timestamp verification bound to exact Ed25519 receipt-signature bytes, including OpenSSL-generated integration fixtures, TSA chain/EKU and generation-time validation, optional full-chain CRL checks, and fail-closed Trust Store integration when revocation is unchecked.
-- No global key registry, automated key rotation, hardware-backed key custody, or OCSP-based revocation validation.
-- No hosted API, authentication, managed storage, or operational deployment.
-- No independent security audit or formal protocol review.
+### Present on main
 
-Do not mark Cord stable or claim regulatory compliance until these release gates are met.
+- Python reference verifier and Core v0.1 receipt creation/verification CLI.
+- Core v0.1 format specification, fixed test vector, and automated test workflow.
+- Experimental Ed25519 signed-receipt support.
+- Experimental offline Trust Store support with pinned trust configuration.
+- Experimental RFC 3161 trusted-timestamp verification support.
+- Experimental receipt event-chain support.
+- Minimal Python SDK helper and example.
 
+These capabilities remain subject to the limitations documented in their specifications. Their presence on `main` does not mean they are production-ready, independently audited, or interoperable with independent implementations.
+
+### Work in open pull requests — not yet part of main
+
+The following work was visible in open pull requests at the time of this review. Its status must be checked again before each release:
+
+- **Core verifier input hardening (#26):** proposed resource limits, JSON nesting limits, and malformed Unicode handling. The PR reports 49 passing CI tests on its head commit; this is not evidence that the change is merged into `main`.
+- **Security-first engineering gates (#25):** proposed project-wide engineering and release policy; documentation-only proposal.
+- **Proof-of-Observation (#24):** research architecture proposal; no runtime implementation.
+- **Authenticated change events (#23):** design proposal; no verifier/API implementation or executable test vectors in that PR.
+- **Evidence Validity Calculus (EVC) (#22):** experimental Python/TypeScript prototype and conformance tests; remains an open draft PR.
+- **CORD Verify API (#20–#21):** API contract proposal and initial local/developer implementation; not a production hosted service.
+- **Full-System Assurance Agent (#27):** architecture proposal only; no agent, scanner, sandbox, continuous monitoring, or automated remediation is implemented by that PR.
+
+Other open pull requests and their dependencies should be reviewed individually. Do not treat a PR title, branch, preview deployment, or passing branch CI as a released capability.
+
+### Not established as production-ready
+
+- Independent third-party security audit or formal protocol review.
+- Independent second-language implementation of Core with published interoperability results.
+- Production hosted API, multi-customer authentication, operational monitoring, managed evidence storage, billing, or support commitments.
+- Global key registry, automated key rotation, hardware-backed key custody, and complete online revocation validation.
+- Profile-aware verification for the proposed application profiles.
+- Regulatory approval, certification, or legal recognition.
+
+**Release rule:** keep CORD Core v0.1 semantics unchanged. Do not label CORD stable, production-ready, certified, or regulatory-compliant unless the relevant release gates have been completed and the evidence is published.
 
 ## Application profile reservation — Luxury Asset Verification
 
